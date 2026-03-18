@@ -255,7 +255,7 @@ jobs:
                                f"K_c_emp={Kc_emp:.4f} "
                                f"β={beta_fit:.3f} r²={r2_beta:.3f}")
 
-              doc = f"""\
+              doc = rf"""
           ---
           session_id: {SESSION_ID}
           date: {DATE_STR}
@@ -416,7 +416,7 @@ jobs:
                   rows += (f"| {kappas[i]:.4f} | {H_ws[i]:.5f} | "
                             f"{var_Ls[i]:.6f} | {r_arr[i]:.5f} |\n")
 
-              doc = f"""\
+              doc = rf"""
           ---
           session_id: {SESSION_ID}
           date: {DATE_STR}
@@ -575,7 +575,7 @@ jobs:
                       row  += f" {emoji} r={grid_r[i,j]:.3f} |"
                   rows += row + "\n"
 
-              doc = f"""\
+              doc = rf"""
           ---
           session_id: {SESSION_ID}
           date: {DATE_STR}
@@ -658,7 +658,7 @@ jobs:
           {'at low λ (weak constraint)' if best_lam < 0.2 else 'at intermediate λ (balanced constraint)'};
           the rollback mechanism is most effective
           {'at low δ (aggressive rollback)' if best_thresh < 0.25 else 'at moderate δ (selective rollback)'}.
-          The default NECF values $\\lambda=0.10$, $\\delta=0.30$ fall in the
+          The default NECF values (λ=0.10, δ=0.30) fall in the
           {'✓ VIABLE' if regime[lambdas.index(0.10), threshes.index(0.30)] == "VIABLE" else regime[lambdas.index(0.10), threshes.index(0.30)]}
           cell of this grid.
 
@@ -727,7 +727,7 @@ jobs:
                           else "near-zero — marginal direction\n" if abs(l) < 0.01
                           else "negative — contracting direction\n")
 
-              doc = f"""\
+              doc = rf"""
           ---
           session_id: {SESSION_ID}
           date: {DATE_STR}
@@ -893,7 +893,7 @@ jobs:
                   rows += (f"| {k:.3f} | {te:.1f} | {tt:.1f} | "
                             f"{err:.1f}% |\n")
 
-              doc = f"""\
+              doc = rf"""
           ---
           session_id: {SESSION_ID}
           date: {DATE_STR}
@@ -1051,7 +1051,7 @@ jobs:
 
               basin_sizes = sorted([len(b) for b in basins], reverse=True)
 
-              doc = f"""\
+              doc = rf"""
           ---
           session_id: {SESSION_ID}
           date: {DATE_STR}
@@ -1191,7 +1191,7 @@ jobs:
               sig_str = ("**significant** (p < 0.05)" if p_val < 0.05
                          else "**not significant** (p ≥ 0.05)")
 
-              doc = f"""\
+              doc = rf"""
           ---
           session_id: {SESSION_ID}
           date: {DATE_STR}
