@@ -17,7 +17,7 @@
 
 [![Status](https://img.shields.io/badge/Status-Beta%20·%20Active%20Research-f59e0b?style=for-the-badge)]()
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)]()
-[![License](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge)]()
+[![License](https://img.shields.io/badge/License-Apache-22c55e?style=for-the-badge)]()
 [![Research](https://img.shields.io/badge/Research-NIT%20Agartala-7c3aed?style=for-the-badge)]()
 [![Daily Log](https://img.shields.io/badge/Daily%20Research%20Log-docs%2Fsessions-38bdf8?style=for-the-badge)]()
 
