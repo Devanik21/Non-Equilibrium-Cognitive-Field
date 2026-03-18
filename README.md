@@ -668,6 +668,6 @@ Samsung Convergence Software Fellowship (Grade I) · Indian Institute of Science
 *This is an independent research project in active development.*
 *Feedback, questions, and collaboration proposals are always welcome.*
 
-**License:** MIT · **Status:** Beta
+**License:** Apache License Version 2.0, January 2004 · **Status:** Beta
 
 </div>
