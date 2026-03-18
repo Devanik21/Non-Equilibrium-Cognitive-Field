@@ -255,6 +255,13 @@ jobs:
                                f"K_c_emp={Kc_emp:.4f} "
                                f"β={beta_fit:.3f} r²={r2_beta:.3f}")
 
+              beta_fit_desc = (
+                  'is close to the mean-field prediction $\\\\beta=0.5$'
+                  if abs(beta_fit - 0.5) < 0.15 else
+                  'departs from the mean-field prediction $\\\\beta=0.5$, '
+                  'suggesting higher-order corrections'
+              )
+
               doc = rf"""
           ---
           session_id: {SESSION_ID}
@@ -350,7 +357,7 @@ jobs:
           $N = {N}$, the stochastic background $r_{{\\rm bg}} \\approx {r_bg:.4f}$
           raises the apparent threshold and shifts the detected onset toward higher
           $K$.  The fitted scaling exponent $\\hat{{\\beta}} = {beta_fit:.4f}$
-          {'is close to the mean-field prediction $\\beta=0.5$' if abs(beta_fit-0.5)<0.15 else 'departs from the mean-field prediction $\\beta=0.5$, suggesting higher-order corrections'}.
+          {beta_fit_desc}.
 
           ---
 
