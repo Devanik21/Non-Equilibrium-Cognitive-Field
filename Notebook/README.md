@@ -1,1010 +1,690 @@
 <div align="center">
 
 # Non-Equilibrium Cognitive Field (NECF)
-## Experimental Research & Architectural Verification Notebooks
 
-**Author:** Devanik | B.Tech ECE '26, NIT Agartala  
-**Framework:** Level-3 Meta-Rule Dynamics & Boltzmann Epistemic Contagion  
-**Computational Engine:** Batched PyTorch (CUDA T4-Optimized, $B \geq 100$, $T \geq 15,000$)
+### Identity-Constrained Level-3 Meta-Rule Dynamics in Coupled Oscillator Fields
+
+**Devanik**  
+B.Tech ECE '26, NIT Agartala | Samsung Convergence Software Fellow, IISc
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)]()
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)]()
+[![PyTorch](https://img.shields.io/badge/NumPy%2FNumba-Optimized-013243?style=for-the-badge&logo=numpy&logoColor=white)]()
 [![Status](https://img.shields.io/badge/Research-Active-7c3aed?style=for-the-badge)]()
-[![License](https://img.shields.io/badge/License-Apache-22c55e?style=for-the-badge)]()
+[![License](https://img.shields.io/badge/License-Apache%202.0-22c55e?style=for-the-badge)]()
+[![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)]()
 
 </div>
 
 ---
 
-# 1. Executive Abstract
+## Abstract
 
-The **Non-Equilibrium Cognitive Field (NECF)** is a novel mathematical architecture designed to bridge the gap between classical dynamical systems (like coupled oscillators), Active Inference (Friston's Free Energy Principle), and Meta-Learning. 
-
-Most adaptive dynamical systems operate at a maximum of two levels: a state that changes (e.g., node phase angles $\phi_i$) and a rule that governs the state (e.g., synaptic weights, coupling strengths $K_{ij}$). Crucially, the *update rule* for $K_{ij}$ is almost always fixed (Level-2). 
-
-This repository introduces and rigorously tests **Level-3 Meta-Rule Dynamics**: what if the rules governing adaptation—specifically error sensitivity ($\alpha$), coupling strength ($\beta$), and uncertainty-seeking curiosity ($\gamma$)—are themselves continuously evolving dynamic variables, acting as a spatial field phenomenon?
-
-In the NECF, the local learning rule vector $\mathcal{L}_i = (\alpha_i, \beta_i, \gamma_i)$ evolves via **Boltzmann-weighted epistemic contagion** (where successful rules diffuse thermodynamically across the network) and is strictly bounded by an **Identity Curvature Functional $H[\mathcal{L}]$** (which prevents chaotic drift and catatonic homogenization). 
-
-The flagship notebook contained in this directory (`1_NECF_Final_Research_Notebook.ipynb`) represents massive $O(B \cdot N^2)$ batched Monte Carlo simulations run natively on Google Colab T4 GPUs. With scales reaching $T=15,000$ timesteps and $B=100$ topologies, this notebook executes **12 distinct, highly advanced experiments** that empirically, statistically, and topologically prove the structural superiority of Level-3 dynamics over traditional Level-1 and Level-2 baselines.
+We introduce the **Non-Equilibrium Cognitive Field (NECF)**, a dynamical systems architecture in which local learning rules — not merely state variables — are themselves continuous dynamic quantities evolving under thermodynamic constraints. Prior adaptive oscillator models (Kuramoto, 1975; Ha et al., 2016; arXiv:2505.03648) universally stop at **Level-2**: the coupling strengths $K_{ij}(t)$ evolve, but the *rule governing their evolution* is a fixed hyperparameter. NECF instantiates **Level-3**: each node $i$ carries a local meta-rule vector $\mathcal{L}_i(t) = (\alpha_i, \beta_i, \gamma_i) \in \mathbb{R}^3$ that itself constitutes a dynamical state variable, evolving via Boltzmann-weighted epistemic contagion — a thermodynamically smooth diffusion of successful strategies from low-error to high-error nodes. This evolution is constrained by an **Identity Curvature Functional** $H[\mathcal{L}]$, a scalar energy functional over rule space that prevents both chaotic drift and catatonic homogenization, and is enforced via a Lyapunov-gated rollback mechanism that provides reversibility guarantees otherwise absent from continuous adaptive systems. The system is driven perpetually far from equilibrium by three simultaneous perturbation sources (Lorenz chaos, structured periodic forcing, Poisson phase resets), implementing an open thermodynamic architecture in the sense of Prigogine (1977). We provide a complete, Numba-accelerated Python implementation, a live Streamlit dashboard, and seven falsifiable empirical predictions against which the architecture is tested.
 
 ---
 
-# 2. Notebook Inventory
+## Table of Contents
 
-### 📄 `1_NECF_Final_Research_Notebook.ipynb` (The Flagship Document)
-This is the vastly expanded, massively comprehensive research artifact representing the final compilation of the architecture.
-*   **Backend:** PyTorch tensor operations over a batch dimension ($B=100$).
-*   **Scale:** $T=15,000$ simulation steps, ensuring all mixing timescales $\tau_{mix}$ are formally crossed.
-*   **Content:** Executes 12 formal falsifiable experiments (E1-E12), incorporating deep academic framing, formal LaTeX equations, explicit physical analogies (Kuramoto oscillators, Prigogine dissipative structures), 3D phase space mapping, K-Means Free Energy Topology clustering, and rigorous statistical hypothesis testing ($p < 0.05$).
-
-### 📄 Auxiliary Artifacts
-`NECF_Research_Notebook_2.ipynb`, `Expanded_NECF_Research_Notebook_3.ipynb`, `Foundation_NECF_Research_Notebook.ipynb`, `NECF_Final_Research_Notebook.ipynb`, `NECF_Research_Notebook_Final.ipynb`
-These are foundational iteration notebooks containing the core computational engine and the initial subsets of experiments. They act as historical waypoints for the development of the PyTorch engine prior to the massive 12-experiment final compilation.
+1. [Theoretical Positioning](#1-theoretical-positioning)
+2. [Mathematical Substrate](#2-mathematical-substrate)
+3. [Level-3 Meta-Rule Dynamics](#3-level-3-meta-rule-dynamics)
+4. [Identity Curvature Functional](#4-identity-curvature-functional)
+5. [Non-Equilibrium Driving](#5-non-equilibrium-driving)
+6. [Curiosity Engine & Proto-Will](#6-curiosity-engine--proto-will)
+7. [Implementation Architecture](#7-implementation-architecture)
+8. [The Seven Falsifiable Predictions](#8-the-seven-falsifiable-predictions)
+9. [Installation & Usage](#9-installation--usage)
+10. [Ablation Hierarchy](#10-ablation-hierarchy)
+11. [Mathematical Glossary](#11-mathematical-glossary)
+12. [Literature Positioning](#12-literature-positioning)
 
 ---
 
-# 3. Philosophical Motivation & The Taxonomy of Adaptive Systems
+## 1. Theoretical Positioning
 
-The fundamental question the NECF architecture asks is:
-> *Can a system's **learning rules** themselves be treated as dynamic state variables — evolving continuously under thermodynamic constraints — while preserving a coherent mathematical identity?*
+### 1.1 The Adaptive Hierarchy
 
-### 3.1 The Limits of Optimization
-In modern deep learning and meta-learning (e.g., MAML by Finn et al., 2017), the "rules" of learning (the gradients, the update steps) are imposed from the outside. They are non-physical, discrete, algorithmic operations applied to a static loss landscape. Even when MAML learns an *initialization*, the rule that updates the initialization during inference remains frozen.
-
-In biological systems, the "rules" of learning (synaptic plasticity rates, neuromodulator diffusion) are themselves physical processes that evolve continuously in time alongside the electrical states they govern. 
-
-### 3.2 The Taxonomy of Dynamics
-To situate NECF in the literature, we formalize the hierarchy of adaptive dynamics:
+All adaptive dynamical systems can be classified by the highest *level* at which dynamics operate:
 
 | Level | What evolves | What is fixed | Representative systems |
 |:---:|---|---|---|
-| **0** | Nothing | Everything | Lookup tables, hardcoded logic gates |
-| **1** | State $\phi(t)$ | Rule $\mathcal{L}$ | Standard Kuramoto Oscillators, frozen-weight Artificial Neural Networks |
-| **2** | State $\phi(t)$, Coupling $K_{ij}(t)$ | Rule for updating $K(t)$ | Adaptive Kuramoto (Ha et al., 2016), Gradient Descent on Weights |
-| **3** | State $\phi(t)$, Rule $\mathcal{L}(t)$ | Identity curvature $\mathcal{H}$ | **NECF (this work)** |
+| **0** | Nothing | Everything | Lookup tables, static logic |
+| **1** | State $\phi(t)$ | Learning rule $\mathcal{L}$ | Standard Kuramoto (1975), frozen-weight ANNs |
+| **2** | State $\phi(t)$, Coupling $K_{ij}(t)$ | Rule governing $K$'s evolution | Adaptive Kuramoto (Ha et al., 2016), SGD on weights |
+| **3** | State $\phi(t)$, Rule $\mathcal{L}_i(t)$ | Identity curvature $H[\mathcal{L}]$ | **NECF (this work)** |
 
-NECF explicitly models Level-3. The rule governing each node's adaptation is not fixed; it adapts continuously through the Boltzmann-weighted averaging of neighbor rules, making the rule-evolution process itself a fluid, thermodynamically-sound field phenomenon.
+The distinction between Level-2 and Level-3 is not cosmetic. In Level-2 adaptive Kuramoto (Ha et al., 2016), the plasticity rule — the equation defining how fast $K_{ij}$ changes — is a static architectural hyperparameter. A system can learn *which coupling strengths to use*, but not *how to learn*. NECF's Level-3 architecture allows nodes to learn *how* to update their coupling, error sensitivity, and exploratory drive — in continuous time, locally, without backpropagation.
 
----
+### 1.2 Precise Novelty Claim
 
-# 4. The Mathematical Substrate (Level-1 & Level-2 Dynamics)
+The following combination does not appear in the literature after exhaustive search (Google Scholar, arXiv, SIAM, Nature, ScienceDirect, March 2026):
 
-The foundation of the NECF is an $N$-node coupled phase oscillator network, generalizing the Kuramoto model (1975) to include local amplitudes and curiosity-driven Active Inference.
+> **A coupled oscillator field where local learning rules** $(\alpha_i, \beta_i, \gamma_i)$ **evolve as a second-order dynamical system under Boltzmann-weighted epistemic contagion, constrained by an identity curvature functional** $H[\mathcal{L}]$ **with Lyapunov-gated thermodynamic rollback — implemented as a unified, continuous-time, backpropagation-free architecture.**
 
-### 4.1 State Representation
-Each node $i \in \{1, \dots, N\}$ carries a complex state variable $\phi_i(t)$:
-$$ \phi_i(t) = A_i(t) e^{i\theta_i(t)} $$
-Where:
-*   $A_i \in (0, 1]$ represents the local amplitude (interpreted as local confidence, energy, or certainty).
-*   $\theta_i \in [0, 2\pi)$ represents the phase (interpreted as causal temporal alignment or state).
+Individual components exist. Their specific integration does not:
 
-The macroscopic synchronization of the field is measured by the **Kuramoto Order Parameter**, $r(t) e^{i\psi(t)}$:
-$$ r(t) e^{i\psi(t)} = \frac{1}{N} \sum_{j=1}^N A_j(t) e^{i\theta_j(t)} $$
-Where $r \in [0, 1]$. $r \to 0$ implies a chaotic, incoherent field, while $r \to 1$ implies a perfectly synchronized, highly coherent state. $\psi(t)$ is the mean-field phase.
-
-### 4.2 Level-1 Dynamics: Phase Evolution ($\theta_i$)
-The phase of each node evolves according to its intrinsic natural frequency $\omega_i$ (drawn from $\mathcal{N}(\omega_{mean}, \sigma_\omega)$), the pull of its neighbors, a curiosity gradient, and external perturbations.
-
-$$ \frac{d\theta_i}{dt} = \underbrace{\omega_i}_{\text{intrinsic}} + \underbrace{\beta_i \frac{1}{N} \sum_{j=1}^N W_{ij} A_j \sin(\theta_j - \theta_i)}_{\text{synchrony pull}} + \underbrace{\gamma_i \nabla_{\theta_i} U(\theta_i)}_{\text{curiosity gradient}} + \underbrace{\Delta_{ext}}_{\text{chaos/noise}} $$
-
-Crucially, in standard Kuramoto, $\beta_i$ is a global constant $K$. In the NECF, $\beta_i$ is a *local dynamic variable* drawn from the node's meta-rule field $\mathcal{L}_i(t)$. $W_{ij}$ is the static, symmetric, zero-diagonal spatial adjacency matrix.
-
-### 4.3 Active Inference & The Curiosity Potential ($U(\theta)$)
-Drawing from Friston's Free Energy Principle, the system seeks to minimize surprise. However, to prevent premature convergence into sterile, uninformative local minima, the nodes possess a "curiosity" drive, parameterized by $\gamma_i$. 
-
-The Uncertainty Potential $U(\theta_i)$ is defined as the negative log-likelihood of the local phase density. It is approximated via a circular Kernel Density Estimate (KDE) parameterized by Silverman's rule of thumb for the bandwidth $h$:
-$$ p(\theta_i) \approx \frac{1}{N} \sum_{j=1}^N \frac{1}{h} K\left(\frac{\sin(\theta_i - \theta_j)}{h}\right) $$
-$$ U(\theta_i) = -\log p(\theta_i \mid \text{context}) $$
-
-Nodes in dense, highly coherent regions of phase space experience a low curiosity gradient. Nodes in sparse, chaotic regions experience a high curiosity gradient, pulling them toward exploration. The strength of this pull is governed dynamically by $\gamma_i(t)$.
-
-### 4.4 Level-1 Dynamics: Amplitude Evolution ($A_i$)
-The amplitude (confidence) of a node decays proportionally to its local **Prediction Error** $\varepsilon_i(t)$. If a node diverges wildly from the mean-field consensus $\psi(t)$, its confidence is aggressively suppressed.
-$$ \varepsilon_i(t) = \sin^2\left(\frac{\theta_i(t) - \psi(t)}{2}\right) $$
-$$ \frac{dA_i}{dt} = -\alpha_i \varepsilon_i(t) A_i + \sigma \eta_i(t) $$
-Where $\eta_i(t)$ is a stochastic Wiener process (Brownian noise) scaled by $\sigma$, ensuring the amplitude does not permanently collapse to exactly zero, but maintains a thermodynamic baseline. The sensitivity to error is governed by $\alpha_i(t)$.
+- Standard Kuramoto: $K$ **fixed**
+- Adaptive Kuramoto (Ha et al.): $K_{ij}$ **evolves**, plasticity rule **fixed**
+- Hopfield-Kuramoto (arXiv:2505.03648, 2025): joint memory, **no meta-rule evolution**
+- MAML (Finn et al., 2017): learns initialization, **freezes during deployment**
+- FEP (Friston, 2010–2022): minimizes free energy, **optimization machinery fixed**
+- **NECF**: rules governing adaptation are **dynamic state variables** constrained by identity topology
 
 ---
 
-# 5. The Meta-Rule Field (Level-3 Dynamics)
+## 2. Mathematical Substrate
 
-This is the core architectural innovation of the NECF. 
+### 2.1 State Representation
 
-The learning rule governing node $i$ is defined as the vector $\mathcal{L}_i(t) = (\alpha_i(t), \beta_i(t), \gamma_i(t))$. This vector is not static. It evolves as a second-order dynamical system:
-$$ \frac{d\mathcal{L}_i}{dt} = F_{\text{contagion}}(\mathcal{L}_i, \varepsilon_i, W) - \lambda \nabla_{\mathcal{L}_i} H[\mathcal{L}] $$
+Each node $i \in \{1, \dots, N\}$ carries a complex state variable $\phi_i(t) \in \mathbb{C}$:
 
-### 5.1 The Epistemic Contagion Singularity Problem
-How do nodes share "good" learning rules? A naive approach would be to average the rules of neighbors, weighted inversely by their prediction error:
-$$ w_j^{naive} = \frac{1}{\varepsilon_j + \epsilon} $$
-**This approach is physically broken.** If any single node $j$ achieves near-perfect synchronization ($\varepsilon_j = 10^{-6}$), its weight $w_j \to 1,000,000$. Upon row-normalization, the weight vector degenerates into a one-hot vector $[0, 0, \dots, 1, \dots, 0]$. The entire network violently snaps to the exact rule of this single "lucky" node. This destroys field diversity and prevents continuous learning. It is a discrete logic switch, not a fluid dynamical system.
+$$
+\phi_i(t) = A_i(t) \, e^{i\theta_i(t)}
+$$
 
-### 5.2 Boltzmann Softmax Weights
-To restore thermodynamic coherence, NECF utilizes a **Boltzmann-weighted softmax** parameterized by an artificial temperature $\kappa_{boltzmann}$:
-$$ w_j = \frac{\exp(-\varepsilon_j / \kappa)}{\sum_k \exp(-\varepsilon_k / \kappa)} $$
-This formulation guarantees:
-1. $w_j \in (0, 1)$ for all $j$, preventing singularities.
-2. $\sum w_j = 1$, ensuring a proper probability distribution.
-3. The temperature $\kappa$ explicitly controls the "sharpness" of the rule diffusion. If $\kappa \to \infty$, all neighbors are trusted equally (uniform diffusion). If $\kappa \to 0$, it reverts to winner-takes-all. At an optimal finite $\kappa \approx 0.15$, the field diffuses smoothly, heavily favoring low-error neighbors without mathematically snapping to them.
+where $A_i \in (0, 1]$ is local amplitude (confidence/energy) and $\theta_i \in [0, 2\pi)$ is phase (causal temporal alignment). The macroscopic synchronization of the field is captured by the **Kuramoto Order Parameter**:
 
-### 5.3 The Contagion Update Step
-Using these Boltzmann weights, each node $i$ computes a "Target Rule" representing the thermodynamically-weighted average of its spatial neighbors' rules:
-$$ \mathcal{L}_i^{\text{target}} = \frac{\sum_j W_{ij} w_j \mathcal{L}_j}{\sum_j W_{ij} w_j + \epsilon} $$
-The contagion force $F_{\text{contagion}}$ pulls the node's current rule toward this target at a rate $\mu = (\mu_\alpha, \mu_\beta, \mu_\gamma)$, scaled by the node's *own* prediction error $\varepsilon_i$. 
-$$ F_{\text{contagion}, i} = \mu \odot (\mathcal{L}_i^{\text{target}} - \mathcal{L}_i) \varepsilon_i $$
-This is mathematically elegant: nodes with high prediction error (failing nodes) are highly "receptive" and rapidly overwrite their failing rules with the target rule. Nodes with near-zero error (successful nodes) become "stubborn" and change their rules very slowly, acting as stable anchors for the rest of the field.
+$$
+r(t) \, e^{i\psi(t)} = \frac{1}{N} \sum_{j=1}^{N} A_j(t) \, e^{i\theta_j(t)}
+$$
 
----
+where $r \in [0, 1]$ is the synchronization index and $\psi(t)$ is the instantaneous mean-field phase. The limits $r \to 0$ and $r \to 1$ correspond to incoherent and fully synchronized regimes respectively. The NECF is designed to maintain $r$ in the **edge-of-chaos** regime $r \in [0.5, 0.8]$ — coherent enough for information propagation, disordered enough for adaptive flexibility.
 
-# 6. The Identity Curvature Functional $H[\mathcal{L}]$
+### 2.2 Phase Evolution: Generalized Kuramoto with Curiosity
 
-If left entirely to epistemic contagion, the meta-rule field $\mathcal{L}_i(t)$ would suffer two lethal fates:
-1. **Chaotic Drift:** The rules wander stochastically to infinity under continuous perturbations.
-2. **Catatonic Homogenization:** Because all nodes are pulling toward a weighted average, the variance of the field $\text{Var}(\mathcal{L}_i)$ monotonically shrinks to exactly zero. Every node adopts the exact same rule, destroying the spatial diversity required to respond to spatially-distributed complex stimuli.
+The phase of each node evolves under four simultaneous forces:
 
-To prevent this, the NECF is bounded by an **Identity Curvature Functional**, $H[\mathcal{L}]$.
-$$ H[\mathcal{L}] = \underbrace{\frac{1}{N} \sum_{i=1}^N \|\mathcal{L}_i(t) - \mathcal{L}_i(0)\|^2}_{\text{Drift Penalty}} + \underbrace{\kappa_{id} \overline{\text{Var}}(\mathcal{L}_i)}_{\text{Homogenization Penalty}} $$
+$$
+\frac{d\theta_i}{dt} = \underbrace{\omega_i}_{\text{intrinsic}} + \underbrace{\beta_i \frac{1}{N} \sum_{j=1}^{N} W_{ij} A_j \sin(\theta_j - \theta_i)}_{\text{synchrony pull (local } \beta_i\text{)}} + \underbrace{\gamma_i \nabla_{\theta_i} U(\theta_i)}_{\text{curiosity gradient}} + \underbrace{\Delta_{\text{ext}}(t)}_{\text{chaos/noise}}
+$$
 
-*   The first term is the $L_2$ structural memory. It mathematically forces the field to remember its topological origins, opposing random walk divergence.
-*   The second term is the Variance Penalty, parameterized by $\kappa_{id}$. It mathematically prevents the field from collapsing into a singular point. Note that $\overline{\text{Var}}(\mathcal{L}_i)$ computes the mean variance across the three rule dimensions $(\alpha, \beta, \gamma)$.
+The critical departure from standard Kuramoto is that $\beta_i$ is **not a global constant $K$**. It is an element of the node's dynamically evolving meta-rule vector $\mathcal{L}_i(t)$. Nodes that consistently mispredict their neighbors' phases evolve toward lower $\beta_i$; successful nodes evolve toward higher $\beta_i$ — a mechanism with no analogue in the Kuramoto literature.
 
-### 6.1 Identity Gradients
-The continuous evolution of $\mathcal{L}_i$ is actively pulled down the gradient of this functional, scaled by $\lambda$:
-$$ \nabla_{\mathcal{L}_i} H[\mathcal{L}] = \frac{2}{N}(\mathcal{L}_i - \mathcal{L}_i(0)) + \kappa_{id} \frac{2}{N}(\mathcal{L}_i - \bar{\mathcal{L}}) $$
-This ensures the field constantly "breathes" around a viable attractor.
+The coupling matrix $W_{ij}$ is symmetric and zero-diagonal:
 
-### 6.2 Thermodynamic Rollback Mechanism
-Because discrete numerical integration ($dt = 0.01$) and sudden chaotic spikes (from the Lorenz attractor) can cause instantaneous, massive ruptures in the rule field that the gradient cannot catch in time, the NECF implements a hard fail-safe:
-$$ \delta H(t) = H[\mathcal{L}(t)] - H[\mathcal{L}(t-dt)] $$
-If $\delta H > \delta_{thresh}$, the system is undergoing acute identity trauma. The state is instantly rolled back one timestep, and an aggressive, scaled gradient step $\eta_{rb}$ is applied to the old state to push it away from the catastrophic cliff edge:
-$$ \mathcal{L}(t) \leftarrow \mathcal{L}(t-dt) - \eta_{rb} \nabla_{\mathcal{L}} H[\mathcal{L}(t-dt)] $$
-This is not standard gradient descent; it is a thermodynamically aware, time-reversible memory function that guarantees absolute topological stability for $T \to \infty$.
+$$
+W_{ij} \sim \mathcal{U}(0.5, 1.5), \quad W_{ii} = 0, \quad W_{ij} = W_{ji}
+$$
 
----
+Natural frequencies $\omega_i$ are drawn once and frozen:
 
-# 7. Non-Equilibrium Thermodynamics & Environmental Drivers
+$$
+\omega_i \sim \mathcal{N}(\omega_{\text{mean}}, \sigma_\omega^2), \quad \omega_{\text{mean}} = 1.0, \quad \sigma_\omega = 0.3
+$$
 
-The NECF is an **open thermodynamic system** (Prigogine, 1977). If a dynamical system is closed, it will eventually minimize free energy completely, reaching a state of maximal entropy (thermal equilibrium) where no work or computation can occur. To maintain "proto-cognition", the NECF must be continuously driven far from equilibrium.
+### 2.3 Amplitude Evolution: Confidence Under Error
 
-The engine injects three specific forms of environmental driving:
+Node amplitude (local confidence) decays under local prediction error $\varepsilon_i(t)$:
 
-### 7.1 The Lorenz Chaotic Attractor (Spatial Perturbation)
-A classic 3D Lorenz system $(\sigma=10, \rho=28, \beta=8/3)$ is integrated alongside the network. Its $X(t)$ coordinate is normalized to $X \in [-1, 1]$ and injected as a spatially distributed phase kick proportional to $\varepsilon_L$:
-$$ \Delta\theta_i^{\text{Lorenz}} = \varepsilon_L \cdot X(t) \cdot \sin\left(\frac{2\pi i}{N}\right) $$
-This guarantees deterministic, aperiodic, fractal chaos constantly agitates the field, testing the rule network's ability to maintain order under stress.
+$$
+\frac{dA_i}{dt} = -\alpha_i \, \varepsilon_i(t) \, A_i + \sigma \eta_i(t) + \Delta A_{\text{periodic}}(t)
+$$
 
-### 7.2 Structured Periodic Forcing
-A global, low-frequency sinusoidal signal modulates the amplitude of all nodes simultaneously, providing predictable, resonant opportunities for the field to latch onto:
-$$ A_i(t) \leftarrow A_i(t) + \varepsilon_s \sin(2\pi f_s t) $$
+where $\eta_i(t) \sim \mathcal{N}(0, \sigma^2)$ is a Wiener process with $\sigma = 0.02$, preventing amplitude collapse to exactly zero (thermodynamic floor). The **local prediction error** is the squared circular distance from the mean-field phase:
 
-### 7.3 Poisson Spikes (Phase Resets)
-At every timestep $dt$, every node $i$ has a discrete probability $\lambda_s = 0.02$ of undergoing a complete catastrophic failure (a spike), where its phase $\theta_i$ is instantly randomized:
-$$ \theta_i(t) \leftarrow \mathcal{U}(0, 2\pi) \quad \text{if } P < \lambda_s $$
-This simulates sudden synaptic firing or catastrophic data loss. 
+$$
+\varepsilon_i(t) = \sin^2\!\left(\frac{\theta_i(t) - \psi(t)}{2}\right) \in [0, 1]
+$$
+
+This has the property that $\varepsilon_i \approx \frac{1}{4}(\theta_i - \psi)^2$ for small deviations and saturates to 1 for nodes that are phase-antithetical to the field consensus. The sensitivity to error is governed dynamically by $\alpha_i(t)$ — itself a component of $\mathcal{L}_i(t)$.
+
+### 2.4 The Curiosity Potential $U(\theta_i)$
+
+Drawing from Friston's Active Inference framework, nodes maintain a curiosity gradient that drives exploration of sparse phase regions. The Uncertainty Potential $U(\theta_i)$ is the negative log-likelihood of the local phase density, approximated via circular Kernel Density Estimation with Silverman bandwidth $h = 1.06 \hat{\sigma}_\theta N^{-1/5}$:
+
+$$
+p(\theta_i) \approx \frac{1}{N} \sum_{j=1}^{N} \frac{1}{h} \exp\!\left(-\frac{\sin^2(\theta_i - \theta_j)}{2h^2}\right)
+$$
+
+$$
+U(\theta_i) = -\log p(\theta_i \mid \text{context})
+$$
+
+Nodes in dense, highly coherent phase regions experience a **low curiosity gradient** — they are already well-represented and need not explore. Nodes in sparse, chaotic regions experience a **high curiosity gradient**, pulling them toward informationally rich territory. The strength of this pull is governed by $\gamma_i(t)$, the curiosity weight in $\mathcal{L}_i$.
 
 ---
 
-# 8. Experimental Index: The 12 Foundational Proofs
+## 3. Level-3 Meta-Rule Dynamics
 
-The flagship `1_NECF_Final_Research_Notebook.ipynb` executes an unprecedented **12 sequential experiments**, scaling up to $T=15,000$ and $B=100$, to definitively map and mathematically falsify the NECF architecture.
+### 3.1 The Meta-Rule Field
 
-### E1: Synchronization Onset (Critical Phase Transition)
-**Hypothesis:** Classical Kuramoto networks undergo a second-order phase transition from incoherence to synchrony when global coupling $K$ exceeds a critical threshold $K_c$. In the mean-field limit, $r \sim (K - K_c)^{0.5}$.
-**Result:** By sweeping $K \in [0.2, 2.0]$, the simulation mathematically extracts the empirical scaling exponent $\beta_{fit}$. We prove that even with wildly evolving local $\beta_i$ rules, the macroscopic thermodynamic phase transition holds true to universality classes.
+This is NECF's core architectural contribution. Each node $i$ carries a **local learning rule vector**:
 
-### E2: Boltzmann Temperature Scan & Rule Diffusion
-**Hypothesis:** The epistemic contagion relies on the temperature $\kappa_{boltzmann}$. An optimal $\kappa^*$ exists that maximizes both the Information Entropy of the weights $H_w(\kappa)$ and the macroscopic synchrony $r(\kappa)$.
-**Result:** A sweep over $\kappa \in [0.01, 5.0]$ reveals a clear, undeniable peak at $\kappa^* \approx 0.150$. This proves the contagion engine physically avoids the mathematical singularity of "winner-takes-all" while simultaneously avoiding uninformative uniform diffusion. 
+$$
+\mathcal{L}_i(t) = \bigl(\alpha_i(t),\; \beta_i(t),\; \gamma_i(t)\bigr) \in \mathbb{R}^3
+$$
 
-### E3: The Identity Stability Landscape
-**Hypothesis:** The rule field is only viable if $H[\mathcal{L}]$ remains bounded between $(0.1, 5.0)$. Drift $(H \to \infty)$ and homogenization $(H \to 0)$ represent catastrophic failure modes. 
-**Result:** A 2D grid sweep of the Identity Gradient Pull $(\lambda)$ versus the Rollback Threshold $(\delta_{thresh})$ generates a stunning color-mapped phase diagram classifying the parameter space into "Viable", "Catatonic", "Drifted", or "Rollback-Heavy" regimes. 
+with hard bounds enforced by projection:
 
-### E4: The Core Ablation Study (L1 vs L2 vs L3)
-**Hypothesis:** Evolving all rules locally subject to identity constraints (Level-3) produces structurally superior adaptation compared to fixing rules entirely (Level-1) or only adapting a global coupling constant (Level-2, *Ha et al. 2016*).
-**Result:** Executed at $T=15,000, B=100$. The Level-3 NECF definitively suppresses prediction error $\varepsilon(t)$ and drives significantly higher synchrony response. The extracted $p$-values and Cohen's $d$ calculations formally establish the statistical superiority of Level-3 meta-rules under chaotic environmental loads.
+$$
+\alpha_i \in [0.01, 2.0], \quad \beta_i \in [0.01, 3.0], \quad \gamma_i \in [0.001, 0.5]
+$$
 
-### E5: Dynamical Complexity & Lyapunov Spectrum via Continuous QR
-**Hypothesis:** The system must exist at the "Edge of Chaos" in a bounded-chaos regime where the maximal Lyapunov exponent $\lambda_1 \in (-0.5, 0.8)$.
-**Result:** Utilizing the continuous QR decomposition method (Benettin et al., 1980), we integrate the full Jacobian $J(\phi)$ over $T=4000$ steps to approximate the Lyapunov exponents. The simulation computes the Kaplan-Yorke Fractal Dimension $D_{KY}$, proving the NECF attractor is a strange, fractal object.
+This vector is **not static**. It evolves as a dynamical system in rule space:
 
-### E6: Epistemic Contagion Mixing Rate ($\tau_{mix}$)
-**Hypothesis:** The speed at which a "good" rule diffuses across the network scales as a power law with the temperature: $\tau_{mix} \sim \kappa^{0.12}$.
-**Result:** We empirically track the diffusion half-life of a partitioned network and fit a linear regression to the log-log plot. The empirical exponent perfectly matches the analytical physical prediction ($\sim 0.12$), validating the thermodynamic equations governing the core contagion loop.
+$$
+\frac{d\mathcal{L}_i}{dt} = F_{\text{contagion}}(\mathcal{L}_i, \varepsilon_i, W) - \lambda \nabla_{\mathcal{L}_i} H[\mathcal{L}]
+$$
 
-### E7: Free Energy Topology & K-Means Memory Basins
-**Hypothesis:** A proto-cognitive system must possess memory—the ability to settle into multiple distinct, stable states (attractor basins) depending on initialization.
-**Result:** We run $B=200$ initializations, extract the final phases, map them to complex components, and apply K-Means clustering. The Elbow Method proves that the 200 random initializations collapse into a finite number (e.g., $k=4$ or $5$) of distinct, stable topological patterns, proving that the NECF natively possesses unsupervised memory storage capacity.
+where $F_{\text{contagion}}$ implements epistemic contagion (Section 3.2) and $\lambda \nabla H$ is the identity restoring gradient (Section 4).
 
-### E8: Non-Equilibrium Driving Analysis
-**Hypothesis:** The external drivers (Lorenz, Spikes) are not merely noise; they are the thermodynamic engine that forces adaptation. Removing them causes "thermal death."
-**Result:** Ablating the drivers results in rule variance flatlining to exactly zero. The external chaos is mathematically proven to be essential for maintaining the "edge of chaos" required for continuous Level-3 adaptation.
+### 3.2 The Epistemic Contagion Singularity Problem
 
-### E9: Rule Field Evolution Trajectories
-**Hypothesis:** The meta-rules $\mathcal{L}_i(t)$ orbit a stable, multi-dimensional attractor in $\mathbb{R}^3$.
-**Result:** We track the exact coordinates of $(\alpha_i, \beta_i, \gamma_i)$ over $T=3000$ steps. The `mplot3d` projection physically maps the chaotic, tangled paths of individual nodes bounding seamlessly around the smooth orbit of the field's Center of Mass, verifying the topological gravity of $H[\mathcal{L}]$.
+A naive approach to rule sharing would weight neighbors inversely by prediction error:
 
-### E10: Information-Theoretic Analysis
-**Hypothesis:** The system's phase distribution entropy and prediction error contain mutual information.
-**Result:** We plot the Shannon Entropy $H(\theta)$ over time against the macroscopic error, confirming the information-theoretic boundaries of the field's learning capacity.
+$$
+w_j^{\text{naive}} = \frac{1}{\varepsilon_j + \epsilon}
+$$
 
-### E11: Finite-Size Scaling
-**Hypothesis:** The Level-3 advantage holds true as the network scales in size $N$.
-**Result:** We run identical L1 vs L3 ablation tests sweeping $N \in \{16, 32, 64, 128\}$. The delta in performance ($\Delta r$) actually *increases* as the network gets larger, proving that the epistemic contagion algorithm scales natively and robustly to highly complex topologies.
+This is **physically broken**. Let $\varepsilon_1 = 10^{-6}$, $\varepsilon_2 = 10^{-1}$. Then $w_1 / w_2 = 10^5$. After normalization, the weight vector degenerates to $\delta_{j,1}$ — the entire field violently collapses to the rule of a single "lucky" node. This destroys rule diversity and makes adaptation a discrete switch rather than a field phenomenon. The differential equation becomes ill-conditioned.
 
-### E12: Seven Falsifiable Predictions Dashboard
-**Hypothesis:** A scientific theory must make bold, falsifiable predictions prior to empirical testing. 
-**Result:** The script extracts the massive $T=15,000$ tensor histories and evaluates strict boolean conditions for all 7 architectural claims (e.g., $r_{final} > 0.2$, $\varepsilon$ strictly decreases, rule diversity bounded). A massive visual dashboard outputs a definitive `[PASS]` for every single hypothesis. $7/7$ satisfied.
+### 3.3 Boltzmann Softmax Epistemic Contagion
 
----
+NECF resolves the singularity by mapping prediction error to thermodynamic energy and applying the canonical ensemble distribution:
 
-# Appendix A: Deep Theoretical Derivations & Mathematical Proofs
+$$
+w_j = \frac{\exp(-\varepsilon_j / \kappa)}{\sum_k \exp(-\varepsilon_k / \kappa)}
+$$
 
-The following sections provide the rigorous mathematical underpinnings of the Non-Equilibrium Cognitive Field (NECF). This serves as the technical backbone for the PyTorch batched simulation architecture and the 12 core experiments documented above.
+where $\kappa = 0.1$ is the Boltzmann temperature, implemented with log-sum-exp stabilization:
 
-## A.1 The Failure of Constant Coupling in Kuramoto Fields
+$$
+w_j = \frac{\exp\!\left(-\varepsilon_j/\kappa - \max_k(-\varepsilon_k/\kappa)\right)}{\sum_k \exp\!\left(-\varepsilon_k/\kappa - \max_k(-\varepsilon_k/\kappa)\right)}
+$$
 
-The classical Kuramoto model of coupled phase oscillators assumes a global coupling constant $K$:
-$$ \frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^N \sin(\theta_j - \theta_i) $$
+This guarantees $w_j \in (0, 1)$, $\sum_j w_j = 1$, and $C^\infty$ differentiability everywhere. The sensitivity of weights to error is:
 
-As shown by Kuramoto (1975) and Strogatz (2000), the system exhibits a second-order phase transition at a critical coupling $K_c$:
-$$ r(t) \to \begin{cases} 0 & \text{for } K < K_c \\ \sqrt{1 - \frac{K_c}{K}} & \text{for } K \geq K_c \end{cases} $$
-where $K_c = \frac{2}{\pi g(\omega_0)}$ for a unimodal frequency distribution $g(\omega)$.
+$$
+\frac{\partial w_j}{\partial \varepsilon_j} = -\frac{1}{\kappa} w_j (1 - w_j)
+$$
 
-**The Epistemic Problem:** A global $K$ assumes all oscillators evaluate the reliability of their neighbors equally. In a cognitive context—where oscillators represent hypotheses, beliefs, or sensory streams—this is biologically and mathematically false. If node $A$ is hallucinating (high prediction error), node $B$ should *decouple* from it.
+which is bounded and well-defined for all $\varepsilon_j$. The temperature $\kappa$ continuously interpolates between two limits: $\kappa \to 0$ recovers crisp winner-take-all, while $\kappa \to \infty$ gives uniform trust in all neighbors.
 
-Adaptive Kuramoto models (Ha, Kim, & Zhang, 2016) attempt to solve this by allowing $K_{ij}$ to evolve based on phase coherence. However, the rule dictating *how* $K_{ij}$ evolves remains fixed globally. 
+### 3.4 The Contagion Update
 
-**The NECF Solution (Level-3):** We replace the global constant $K$ with a local, dynamic meta-rule $\beta_i(t)$. This $\beta_i(t)$ is not merely updated by a fixed equation; the *learning rate* and *curiosity* that govern it are themselves governed by a spatial field $\mathcal{L}_i = (\alpha_i, \beta_i, \gamma_i)$ that diffuses thermodynamically.
+Each node $i$ computes a thermodynamically-weighted target rule from its spatial neighborhood:
 
-## A.2 Free Energy, Active Inference, and The Curiosity Term ($\gamma$)
+$$
+\mathcal{L}_i^{\text{target}} = \frac{\sum_j W_{ij} w_j \mathcal{L}_j}{\sum_j W_{ij} w_j + \epsilon}
+$$
 
-Karl Friston's Free Energy Principle (FEP) states that biological systems must minimize their free energy, bounded by surprise (prediction error).
-$$ \mathcal{F} \geq -\ln p(\tilde{s}) $$
-Where $\tilde{s}$ represents the sensory states. 
+The epistemic contagion force then pulls $\mathcal{L}_i$ toward $\mathcal{L}_i^{\text{target}}$ at a rate scaled by the node's **own** prediction error $\varepsilon_i$:
 
-In NECF, the "sensory states" are the phases of the neighboring nodes. The prediction error $\varepsilon_i(t)$ is formulated as the squared circular distance from the mean-field phase $\psi(t)$:
-$$ \varepsilon_i(t) = \sin^2\left(\frac{\theta_i(t) - \psi(t)}{2}\right) \approx \frac{1}{4} (\theta_i - \psi)^2 $$
-for small deviations.
+$$
+F_{\text{contagion},\, i} = \boldsymbol{\mu} \odot (\mathcal{L}_i^{\text{target}} - \mathcal{L}_i) \cdot \varepsilon_i
+$$
 
-If the system strictly minimizes $\varepsilon_i(t)$ (via purely increasing coupling $\beta_i$), the network collapses into a frozen, synchronized state ($r \to 1$). This state is energetically optimal but *informationally dead*. It can no longer adapt to novel stimuli.
+where $\boldsymbol{\mu} = (\mu_\alpha, \mu_\beta, \mu_\gamma) = (0.05, 0.05, 0.05)$ are per-dimension update rates and $\odot$ denotes elementwise multiplication. The factor $\varepsilon_i$ makes this **thermodynamically self-regulating**: high-error nodes are highly *receptive* and update their rules rapidly toward successful neighbors. Low-error nodes are *stubborn* — they barely modify their rules, acting as stable anchors from which the contagion radiates.
 
-**The Curiosity Gradient:** To prevent informational death, NECF introduces $\gamma_i(t)$, drawing from Active Inference's concept of *epistemic foraging*. The node computes the probability density $p(\theta_i)$ of its current state context, yielding the uncertainty potential $U(\theta_i) = -\ln p(\theta_i)$.
-The node actively alters its phase down the gradient of $U(\theta_i)$, pulling it into *sparse* regions of phase space:
-$$ \frac{d\theta_i}{dt} \propto \gamma_i \nabla_{\theta_i} U(\theta_i) $$
-The weight $\gamma_i$ dictates the exploratory drive. If $\gamma_i \to 0$, the node is purely exploitative (synchronizing). If $\gamma_i \to \infty$, the node is wildly exploratory (chaotic). The optimal balance is found continuously via Boltzmann Contagion.
-
-## A.3 Derivation of the Boltzmann Softmax Weights
-
-Why can't we simply average the rules of low-error neighbors?
-Assume node $i$ wants to update its rule $\mathcal{L}_i$ by observing neighbors $j$. A naive inverse-error weight is:
-$$ w_j = \frac{\varepsilon_j^{-p}}{\sum_k \varepsilon_k^{-p}} $$
-
-**Proof of Singularity:**
-Let $\varepsilon_1 = 10^{-6}$ and $\varepsilon_2 = 10^{-1}$.
-For $p=1$:
-$w_1 = \frac{10^6}{10^6 + 10} \approx 0.99999$
-$w_2 = \frac{10}{10^6 + 10} \approx 0.00001$
-The weight vector collapses to a Kronecker delta $\delta_{j,1}$. The entire field instantly adopts the rule of node $1$. This is a discontinuous jump, destroying the mathematical smoothness required for a dynamical system.
-
-**The Boltzmann Derivation:**
-We map the prediction error $\varepsilon_j$ to a thermodynamic energy $E_j$. In statistical mechanics, the probability of occupying a state $j$ with energy $E_j$ at temperature $T$ is given by the canonical ensemble:
-$$ P(j) = \frac{1}{Z} \exp\left(-\frac{E_j}{k_B T}\right) $$
-Where $Z = \sum_k \exp(-\frac{E_k}{k_B T})$ is the partition function.
-
-Substituting $E_j = \varepsilon_j$ and $k_B T = \kappa$, we arrive at the NECF epistemic weight:
-$$ w_j = \frac{\exp(-\varepsilon_j / \kappa)}{\sum_k \exp(-\varepsilon_k / \kappa)} $$
-This function is globally smooth ($C^\infty$). The derivative with respect to error is well-defined and bounded:
-$$ \frac{\partial w_j}{\partial \varepsilon_j} = -\frac{1}{\kappa} w_j (1 - w_j) $$
-This bounds the maximum rate of change of the meta-rule field, guaranteeing mathematical stability during numerical integration ($dt$).
-
-## A.4 The Architecture of the Identity Curvature Functional $H[\mathcal{L}]$
-
-The identity of a proto-cognitive system is not stored in its transient state $\phi(t)$ (which constantly fluctuates), but in the *manifold* of its learning rules.
-$$ H[\mathcal{L}] = \frac{1}{N} \sum_{i=1}^N \|\mathcal{L}_i(t) - \mathcal{L}_i(0)\|^2 + \kappa_{id} \overline{\text{Var}}(\mathcal{L}_i) $$
-
-### A.4.1 The Drift Penalty
-$$ P_{drift} = \frac{1}{N} \sum_{i=1}^N \sum_{d=1}^3 (\mathcal{L}_{i,d}(t) - \mathcal{L}_{i,d}(0))^2 $$
-This term creates a parabolic energy well around the initial topological state of the rules. It acts as an elastic restoring force. Without it, the Boltzmann contagion acts as a purely diffusive process (like heat spreading in a metal rod), which mathematically guarantees that the variance goes to zero and the mean random-walks indefinitely. 
-
-### A.4.2 The Homogenization Penalty
-$$ P_{var} = \kappa_{id} \frac{1}{3} \sum_{d=1}^3 \left( \frac{1}{N} \sum_{i=1}^N (\mathcal{L}_{i,d} - \bar{\mathcal{L}}_d)^2 \right) $$
-This term penalizes the loss of spatial diversity. If all nodes adopt the exact same rule $\mathcal{L}_i \to \bar{\mathcal{L}}$, then $P_{var} \to 0$. However, because the system takes the *gradient* $\nabla_{\mathcal{L}} H$, the sign of the variance term acts as a repulsive force, pushing nodes away from the mean rule $\bar{\mathcal{L}}$.
-
-### A.4.3 The Combined Gradient
-The total restoring force applied to node $i$ for rule dimension $d$ is:
-$$ -\lambda \frac{\partial H}{\partial \mathcal{L}_{i,d}} = - \frac{2\lambda}{N} (\mathcal{L}_{i,d} - \mathcal{L}_{i,d}(0)) - \frac{2\lambda \kappa_{id}}{N} (\mathcal{L}_{i,d} - \bar{\mathcal{L}}_d) $$
-The interplay between the Epistemic Contagion (pulling toward successful neighbors) and the Identity Gradient (pulling toward initial topology and away from the mean) creates a complex, high-dimensional **Strange Attractor** in the meta-rule space. This is visualized directly in Experiment 9.
+This implements a form of **epistemic natural selection**: rules that produce low prediction error are thermodynamically preferred, diffuse through the network, and suppress strategies that produce high error — all without any external supervisor, gradient oracle, or loss landscape.
 
 ---
 
-# Appendix B: The Batched GPU PyTorch Implementation
+## 4. Identity Curvature Functional
 
-To achieve statistically significant empirical validation ($p < 0.05$), the NECF architecture requires thousands of independent Monte Carlo trials. A standard Python `for` loop over $N=64$ oscillators evaluating $O(N^2)$ interactions for $T=15,000$ steps takes approximately hours per trial.
+### 4.1 Motivation: The Two Failure Modes
 
-The `1_NECF_Final_Research_Notebook.ipynb` solves this by porting the entire mathematical framework into a native PyTorch CUDA architecture, introducing a **Batch Dimension ($B$)**.
+Left unconstrained, epistemic contagion suffers two catastrophic asymptotic behaviors:
 
-### B.1 Tensor Topologies
-All variables are promoted to 2D or 3D Tensors:
-*   `self.phi`: Shape `(B, N)`. Contains the phases of all $N$ nodes across all $B$ independent universes.
-*   `self.W`: Shape `(B, N, N)`. Contains $B$ distinct random symmetric adjacency matrices.
-*   `self.L`: Shape `(B, N, 3)`. Contains the meta-rule vectors.
+1. **Chaotic drift**: Under continuous perturbation from the Lorenz attractor and Poisson spikes, the random walk in rule space causes $\|\mathcal{L}_i(t)\|$ to grow without bound.
+2. **Catatonic homogenization**: Because contagion is a weighted averaging operation, $\text{Var}(\mathcal{L}_i)$ monotonically decreases toward zero. All nodes converge to identical rules, destroying the spatial diversity required for distributed cognition. The system mathematically degenerates to Level-1.
 
-### B.2 Batched Kuramoto Synchronization Pull
-The $O(N^2)$ synchronization summation:
-$$ \sum_{j=1}^N W_{ij} A_j \sin(\theta_j - \theta_i) $$
-Is implemented without loops using PyTorch broadcasting:
-```python
-phi_j = self.phi.unsqueeze(1) # Shape: (B, 1, N)
-phi_i = self.phi.unsqueeze(2) # Shape: (B, N, 1)
-sin_diff = torch.sin(phi_j - phi_i) # Shape: (B, N, N)
-A_j = self.A.unsqueeze(1) # Shape: (B, 1, N)
+### 4.2 The Functional
 
-# Element-wise multiply by Coupling matrix W (B, N, N) and sum over j
-pull = (self.W * A_j * sin_diff).sum(dim=2) / self.N # Shape: (B, N)
+The **Identity Curvature Functional** $H[\mathcal{L}]$ is a scalar energy functional defined over the rule field:
+
+$$
+H[\mathcal{L}] = \underbrace{\frac{1}{N} \sum_{i=1}^{N} \bigl\|\mathcal{L}_i(t) - \mathcal{L}_i(0)\bigr\|^2}_{\text{Drift Penalty}} + \underbrace{\kappa_{\text{id}} \cdot \overline{\text{Var}}(\mathcal{L}_i)}_{\text{Homogenization Penalty}}
+$$
+
+where $\overline{\text{Var}}(\mathcal{L}_i) = \frac{1}{3}\sum_{d=1}^{3} \text{Var}_i(\mathcal{L}_{i,d})$ is the mean variance across the three rule dimensions and $\kappa_{\text{id}} = 0.5$.
+
+The two terms have complementary roles:
+- The **drift penalty** is an $L_2$ structural memory. It creates a parabolic energy well centered at $\mathcal{L}_i(0)$, providing an elastic restoring force toward the node's topological origin.
+- The **homogenization penalty** penalizes the collapse of rule diversity. As nodes converge toward the mean rule $\bar{\mathcal{L}}$, the variance term *decreases*, but the system takes the *gradient* of $H$, and the variance gradient acts as a **repulsive field** pushing nodes away from $\bar{\mathcal{L}}$.
+
+### 4.3 Identity Gradient
+
+The continuous gradient that appears in the rule evolution equation is derived analytically:
+
+$$
+\nabla_{\mathcal{L}_i} H[\mathcal{L}] = \frac{2}{N}\bigl(\mathcal{L}_i - \mathcal{L}_i(0)\bigr) + \kappa_{\text{id}} \frac{2}{N}\bigl(\mathcal{L}_i - \bar{\mathcal{L}}\bigr)
+$$
+
+The interplay between contagion (pulling toward successful neighbors) and identity gradient (pulling toward initial topology and away from the mean) generates a **strange attractor** in meta-rule space — a bounded, high-dimensional orbit that preserves both collective adaptivity and individual structural identity.
+
+### 4.4 Thermodynamic Rollback
+
+Discrete numerical integration ($dt = 0.01$) combined with sudden chaotic spikes from the Lorenz attractor can cause instantaneous ruptures in the rule field that the continuous gradient cannot intercept in time. NECF implements a hard fail-safe via **Lyapunov-gated rollback**. At each timestep, the change in identity curvature is computed:
+
+$$
+\delta H(t) = H[\mathcal{L}(t)] - H[\mathcal{L}(t - dt)]
+$$
+
+If $\delta H > \delta_{\text{thresh}} = 0.3$, the system is undergoing **acute identity trauma**. The rule field is instantly reverted one timestep, and a corrective gradient step is applied:
+
+$$
+\mathcal{L}(t) \leftarrow \mathcal{L}(t - dt) - \eta_{\text{rb}} \, \nabla_{\mathcal{L}} H\bigl[\mathcal{L}(t - dt)\bigr], \quad \eta_{\text{rb}} = 0.05
+$$
+
+This is not gradient descent in the conventional sense. It is a **thermodynamically aware, time-reversible memory function**: the system reverts to a known-stable state *and* takes a corrective step that reduces the likelihood of the same instability recurring. For $T \to \infty$, this mechanism guarantees absolute topological stability as a Lyapunov stability certificate.
+
+The rollback mechanism also has a falsifiable prediction: its firing rate should decrease monotonically over time as the meta-rules converge to a stable attractor basin, providing immunity to future shocks.
+
+---
+
+## 5. Non-Equilibrium Driving
+
+### 5.1 Why Closed Systems Fail Cognitively
+
+A closed dynamical system will eventually minimize free energy completely, reaching thermal equilibrium — a state of maximal entropy where no computation can occur. In the language of Prigogine (1977), the system reaches thermodynamic **death**. Dissipative structures (and cognitive systems) require a **continuous input of free energy** — an external gradient forcing the system perpetually far from equilibrium.
+
+NECF implements three orthogonal perturbation channels:
+
+### 5.2 Lorenz Chaotic Attractor
+
+A classical Lorenz system with parameters $\sigma = 10$, $\rho = 28$, $\beta_L = 8/3$ is integrated in parallel:
+
+$$
+\frac{dx}{dt} = \sigma(y - x), \quad \frac{dy}{dt} = x(\rho - z) - y, \quad \frac{dz}{dt} = xy - \beta_L z
+$$
+
+Its $x(t)$ coordinate, normalized to $[-1, 1]$, is injected as a **spatially distributed phase kick**:
+
+$$
+\Delta\theta_i^{\text{Lorenz}} = \varepsilon_L \cdot x(t) \cdot \sin\!\left(\frac{2\pi i}{N}\right), \quad \varepsilon_L = 0.05
+$$
+
+The spatial factor $\sin(2\pi i / N)$ is critical: nodes near $i = N/4$ receive a strong positive kick while nodes near $i = 3N/4$ receive an equally strong negative kick. The field is physically torn in half in a structured, aperiodic, deterministic manner — a far richer test than white noise.
+
+### 5.3 Structured Periodic Forcing
+
+A global sinusoidal signal modulates node amplitudes, providing a predictable resonant carrier:
+
+$$
+A_i(t) \leftarrow A_i(t) + \varepsilon_s \sin(2\pi f_s t), \quad \varepsilon_s = 0.03, \quad f_s = 0.1
+$$
+
+### 5.4 Poisson Phase Resets
+
+At each timestep, every node has a Poisson spike probability $\lambda_s = 0.02$:
+
+$$
+\theta_i(t) \leftarrow \mathcal{U}(0, 2\pi) \quad \text{if } \xi_i \sim \mathcal{U}(0,1) < \lambda_s \cdot dt
+$$
+
+These simulate sudden synaptic failures or catastrophic data loss. The **spike mask** is threaded to the observer module for Lyapunov computation (see Section 7.3).
+
+---
+
+## 6. Curiosity Engine & Proto-Will
+
+### 6.1 Plateau Detection and Adaptive Directives
+
+When the mean prediction error $\bar{\varepsilon}$ stagnates over a window of 20 timesteps (variation $< \varepsilon_{\text{plateau}} = 0.01$), the **CuriosityEngine** issues an adaptive directive based on system state:
+
+| Condition | Directive | Action |
+|---|---|---|
+| Rollbacks $> 5$ | `REDUCE_META_RATE` | Scale $\mathcal{L}$ by $0.95$ |
+| Falsified steps $> 3$ | `REFRAME_COUPLING` | Randomly reinitialize 20% of $\beta_i$ |
+| Alternating | `BOOST_CURIOSITY` | Amplify $\gamma_i$ by $1 + 0.3$ |
+| Alternating | `DIVERSIFY_RULES` | Add $\mathcal{N}(0, 0.05)$ noise to $\mathcal{L}$ |
+
+This implements a meta-meta-level feedback: the curiosity engine monitors the meta-rule dynamics and perturbs them when they stagnate.
+
+### 6.2 Proto-Will: Constrained Empowerment
+
+At bifurcation points, when the system can settle into one of $k$ attractor basins, a **proto-will** objective determines basin selection. Following Klyubin et al. (2005), **empowerment** is the mutual information channel capacity between actions and future states:
+
+$$
+\mathcal{E} = \max_{p(a)} I(A;\, S')
+$$
+
+In NECF, each candidate attractor $a$ has an associated **Causal Entropy**:
+
+$$
+H_{\text{causal}}(a) = -\sum_{S'} p(S' \mid a) \log p(S' \mid a)
+$$
+
+and an **Identity Distortion Cost**:
+
+$$
+D_{\text{identity}}(a) = \frac{1}{N} \sum_{i=1}^{N} \bigl\|\mathcal{L}_{i,\,\text{attractor}\,a} - \mathcal{L}_{i,\,\text{current}}\bigr\|^2
+$$
+
+Basin selection follows:
+
+$$
+a^* = \arg\max_a \Bigl[H_{\text{causal}}(a) - \mu_{\text{will}} \cdot D_{\text{identity}}(a)\Bigr], \quad \mu_{\text{will}} = 1.0
+$$
+
+This unifies Pearl's Causality (2009) with Friston's Free Energy Principle (2010): the system seeks maximum future causal influence while preserving its current structural identity. It is the computational analogue of *acting with intention rather than impulse*.
+
+---
+
+## 7. Implementation Architecture
+
+### 7.1 Module Overview
+
 ```
-This reduces the computational time from hours to **~0.9 seconds per trial** on a Colab T4 GPU, a $\approx 3000\times$ speedup.
-
-### B.3 Batched Boltzmann Contagion
-The calculation of the target rules:
-$$ \mathcal{L}_i^{\text{target}} = \frac{\sum_j W_{ij} w_j \mathcal{L}_j}{\sum_j W_{ij} w_j} $$
-Is implemented via Batched Matrix Multiplication (`torch.bmm`):
-```python
-w = self._boltzmann_weights(eps) # Shape: (B, N)
-W_weighted = self.W * w.unsqueeze(1) # Shape: (B, N, N)
-row_sums = W_weighted.sum(dim=2, keepdim=True) + 1e-10
-
-# BMM multiplies (B, N, N) by (B, N, 3) yielding (B, N, 3) target rules
-L_target = torch.bmm(W_weighted, self.L) / row_sums
+NECF/
+├── config.py           — Single-source hyperparameter truth (NECFConfig dataclass)
+├── field.py            — Level-1: Numba-compiled oscillator field
+├── meta_dynamics.py    — Level-3: Boltzmann epistemic contagion + rollback
+├── identity.py         — Identity Curvature Functional H[L] + gradient
+├── curiosity.py        — KDE uncertainty potential + plateau directives
+├── environment.py      — Lorenz / periodic / spike drivers
+├── observer.py         — Masked Lyapunov proxy + snapshot recording
+├── experiment.py       — Orchestration (Level-1 / Level-2 / Level-3 ablation)
+└── Notebook/           — Jupyter notebooks (12 experiments, PyTorch batched)
 ```
-This guarantees mathematically flawless execution of the Level-3 meta-dynamics with zero algorithmic bottleneck.
+
+### 7.2 Numba-Accelerated Kuramoto Kernel
+
+The $O(N^2)$ Kuramoto synchrony sum is compiled to native machine code via `@numba.njit`:
+
+```python
+@njit(parallel=True, cache=True, fastmath=True)
+def _kuramoto_sync_pull_numba(theta, A, W, beta):
+    N = theta.shape[0]
+    sync_pull = np.zeros(N)
+    for i in prange(N):       # parallel outer loop
+        s = 0.0
+        for j in range(N):    # no (N,N) matrix allocated
+            s += W[i, j] * A[j] * np.sin(theta[j] - theta[i])
+        sync_pull[i] = beta[i] * s / N
+    return sync_pull
+```
+
+The NumPy broadcasting alternative allocates a fresh $(N \times N)$ matrix per step: at $N = 64$, $T = 2000$, this generates 64 MB of garbage-collected memory churn. The Numba kernel eliminates this entirely, achieving approximately $10$–$50\times$ speedup for $N \geq 64$ and enabling interactive dashboard use. A JIT pre-warm in `__init__` prevents first-step latency.
+
+### 7.3 Masked Lyapunov Proxy
+
+The standard Lyapunov proxy $\lambda \approx \frac{1}{\Delta t} \log \|\delta\theta(t)\|$ is **incorrect** in the presence of external Poisson spikes. A spiked node's phase can jump from $0.1$ to $5.9$ radians in one step — a phase distance of $5.8$. The raw $L_2$ norm of $\delta\theta$ explodes, triggering the rollback mechanism continuously and freezing all dynamics.
+
+The **masked Lyapunov proxy** computes phase divergence only on nodes that were NOT spiked in the current or previous step:
+
+$$
+\lambda_{\text{proxy}} = \frac{1}{\Delta t} \log\!\left(\frac{\|\delta\theta[\sim\text{spike\_mask}]\|}{\sqrt{N_{\text{valid}}}} + 10^{-10}\right)
+$$
+
+The spike mask is explicitly threaded from `environment.step()` through `field.step()` to `observer.record()` at each timestep. If $N_{\text{valid}} < 2$ (almost all nodes spiked simultaneously), the proxy returns `NaN` and the step is classified as `SPIKE_DOMINATED` — a transient physical event, not internal chaos.
+
+### 7.4 Complete Step Ordering
+
+The experiment orchestrator executes each timestep in strict causal order:
+
+```
+t → t+1:
+  1. Environment.step()      → ext signals (Lorenz kick, periodic mod, spike mask)
+  2. CuriosityEngine.U(θ)    → uncertainty potential ∇U(θ_i) for curiosity pull
+  3. OscillatorField.step()  → dθ/dt, dA/dt integration; returns (ε, spike_mask)
+  4. CuriosityEngine.update()→ record ε̄, detect plateau
+  5. CuriosityEngine.directive → modify L if plateauing
+  6. MetaDynamics.step()     → dL/dt contagion + identity gradient + rollback check
+  7. Observer.record()       → masked λ, snapshot, regime classification
+```
+
+This ordering is not arbitrary. Field dynamics at step $t$ must use rules $\mathcal{L}(t)$, not $\mathcal{L}(t+1)$. The curiosity directive modifies $\mathcal{L}$ *before* the meta-dynamics step so that the contagion and identity gradient operate on the post-directive state.
 
 ---
 
-# Appendix C: Extended Literature Review & Theoretical Disambiguation
+## 8. The Seven Falsifiable Predictions
 
-It is essential to clarify exactly how the **Level-3 Meta-Rule Dynamics** of the NECF fundamentally diverges from existing physical and cognitive models. While the NECF synthesizes concepts from across the literature, it maps to a previously uninhabited region of the computational taxonomy.
+Any scientific theory must make bold, falsifiable predictions prior to empirical testing. NECF makes seven:
 
-### C.1 NECF vs. Classical and Adaptive Kuramoto Models
-The standard Kuramoto model (Kuramoto, 1975) fixes the coupling $K$. 
-Adaptive extensions (Ha, Kim, & Zhang, 2016; Berner et al., 2021) allow the coupling edges $K_{ij}$ to evolve based on the phase difference between nodes (e.g., Hebbian plasticity where synchronous nodes increase coupling). 
-**The Disambiguation:** In Adaptive Kuramoto, the *plasticity rule*—the mathematical equation defining how fast $K_{ij}$ grows or shrinks—is a static hyperparameter. In the NECF, the coupling strength $\beta_i(t)$ is a node-centric property, and the rule updating it is continuously modified by the epistemic contagion. If a node consistently hallucinates, it physically loses its ability to pull its neighbors ($\beta \to 0$) because its target rule forces it into submission. 
+| # | Prediction | Pass Condition | Fail Condition |
+|:---:|---|---|---|
+| **P1** | Macroscopic coherence | $r_{\text{final}} > 0.5$ (viable regime) | $r$ remains $< 0.2$ throughout |
+| **P2** | Identity stability | $H[\mathcal{L}] \in [0.1, 5.0]$ for all $t$ | $H \to \infty$ (drift) or $H \to 0$ (collapse) |
+| **P3** | Error suppression | $\bar\varepsilon(t = T) < \bar\varepsilon(t = 100)$ | $\bar\varepsilon$ increases or is flat |
+| **P4** | Edge-of-chaos | $\lambda_{\text{proxy}} \in (-0.5, 0.8)$ | $\lambda > 1.5$ sustained |
+| **P5** | Rule diversity | $\text{Var}(\mathcal{L}_i) > 10^{-3}$ at $t = T$ | $\text{Var} \to 0$ (homogenization) |
+| **P6** | Curiosity response | Directive issued within 30 steps of plateau | Directive never fires |
+| **P7** | Rollback rate decays | Rollbacks/100 steps $\downarrow$ over time | Rate increases or stays constant |
 
-### C.2 NECF vs. Friston's Free Energy Principle (Active Inference)
-Karl Friston's formulation (2010, 2017) defines cognitive systems as bounded thermodynamic entities that must minimize Free Energy (variational surprise) to resist the Second Law of Thermodynamics (entropy maximization). 
-**The Disambiguation:** FEP defines a *fixed variational update rule* (often gradient descent on the Free Energy functional) that the biological agent uses to optimize its beliefs and actions. The FEP assumes the optimization machinery is hardcoded by evolution. The NECF challenges this: the optimization machinery itself (the learning parameters $\alpha, \gamma$) is treated as a free variable constrained by an identity manifold $H[\mathcal{L}]$. The NECF physically modifies *how* it minimizes Free Energy over time.
+These predictions are jointly necessary. A system that passes P1 but fails P5 has synchronized, but at the cost of rule diversity — it has become a glorified Level-1 Kuramoto model. The conjunction of P1 through P7 constitutes evidence for **genuine Level-3 adaptive dynamics** rather than a trivially synchronized or trivially chaotic system.
 
-### C.3 NECF vs. Hopfield Networks
-Hopfield Networks (Hopfield, 1982) are auto-associative memory substrates. They possess a fixed energy landscape defined by static synaptic weights $W_{ij}$. When a state is injected, it rolls down the gradient into a stable point attractor (a memory).
-**The Disambiguation:** In a Hopfield network, the weights are set during a discrete "training phase" (Hebbian learning) and frozen during "inference". The NECF operates perpetually in both states simultaneously. There is no discrete training phase. The memory of the NECF (as shown in Experiment 7: Free Energy Topology) is stored in the dynamic equilibrium of the meta-rule field orbiting the $H[\mathcal{L}]$ attractor, not in frozen spatial weights. 
+### 8.1 Regime Classification
 
-### C.4 NECF vs. Meta-Learning (MAML)
-Model-Agnostic Meta-Learning (Finn et al., 2017) learns an optimal initialization parameter $\theta_0$ such that a small number of gradient steps on a new task yields high performance.
-**The Disambiguation:** MAML operates on discrete loss functions and discrete tasks. It uses backpropagation through the learning process (second-order gradients) to find the initialization. The NECF has no backpropagation. It operates entirely locally in continuous time via thermodynamic diffusion. More importantly, MAML freezes its meta-learned optimization logic during deployment; NECF's rules never freeze.
+The observer classifies each timestep into one of five regimes based on the masked Lyapunov proxy, order parameter, and identity curvature:
 
-### C.5 NECF vs. Prigogine's Dissipative Structures
-Ilya Prigogine (Nobel Prize in Chemistry, 1977) proved that open thermodynamic systems far from equilibrium can spontaneously self-organize into highly ordered "dissipative structures" (e.g., Rayleigh-Bénard convection cells).
-**The Disambiguation:** This is the physical inspiration for the NECF. As proven in Experiment 8 (Non-Equilibrium Driving Analysis), if the NECF is closed (no external chaotic drivers), it rapidly converges to thermal death (complete synchrony, zero rule variance). The continuous injection of Lorenz chaos acts as the thermal gradient that forces the epistemic contagion to constantly perform computational "work" to maintain the structural identity $H[\mathcal{L}]$. The NECF is, computationally, a dissipative structure.
+```python
+VIABLE         :  λ ∈ (-0.5, 0.8)  AND  r > 0.15  AND  H ∈ (0.05, 10.0)
+CHAOTIC        :  λ > 0.8   (internal divergence, not spike noise)
+CATATONIC      :  r < 0.05  (complete desynchronization)
+IDENTITY_BROKEN:  H > 10.0 or H < 0.01
+SPIKE_DOMINATED:  N_valid < 2 (transient; not a failure mode)
+```
+
+A healthy NECF run should remain `VIABLE` for $> 60\%$ of timesteps.
 
 ---
 
-# Appendix D: Exhaustive Mathematical Glossary & Notation Index
+## 9. Installation & Usage
 
-To ensure reproducibility across fields (dynamical systems physics, cognitive science, and machine learning), the notation utilized in the NECF architecture and the PyTorch simulation engine is strictly formalized.
+### 9.1 Requirements
 
-### D.1 Substrate Variables (Level-1 Dynamics)
-| Symbol | Physical Interpretation | Tensor Shape | Range |
-|:---:|---|---|---|
-| $N$ | Number of discrete coupled oscillators in the spatial field | Scalar | $\{16, 32, 64, \dots\}$ |
-| $B$ | Batch size for parallel Monte Carlo execution | Scalar | $\{1, 50, 100\}$ |
-| $\phi_i(t)$ | The complex state vector of node $i$ at time $t$ | `(B, N)` | $\mathbb{C}$ |
-| $\theta_i(t)$ | The phase angle of node $i$ (temporal causal alignment) | `(B, N)` | $[0, 2\pi)$ |
-| $A_i(t)$ | The amplitude of node $i$ (local confidence, energy) | `(B, N)` | $(0, 1]$ |
-| $\omega_i$ | The intrinsic natural frequency of node $i$ (frozen) | `(B, N)` | $\mathbb{R}$ |
-| $\sigma_\omega$ | The standard deviation of the natural frequency distribution | Scalar | e.g., $0.30$ |
-| $W_{ij}$ | The symmetric spatial adjacency matrix mapping node connectivity | `(B, N, N)` | $(0, K_{max}]$ |
-| $r(t)$ | The macroscopic Kuramoto order parameter (global synchronization) | `(B,)` | $[0, 1]$ |
-| $\psi(t)$ | The macroscopic mean-field phase angle | `(B,)` | $[0, 2\pi)$ |
-| $\varepsilon_i(t)$ | The local prediction error (squared circular distance from $\psi$) | `(B, N)` | $[0, 1]$ |
-| $U(\theta_i)$ | The Active Inference Curiosity Potential ($-\ln p(\theta_i)$) | `(B, N)` | $[0, \infty)$ |
+```
+streamlit>=1.32.0
+numpy>=1.24.0
+scipy>=1.11.0
+matplotlib>=3.7.0
+numba>=0.58.0
+```
 
-### D.2 Meta-Rule Variables (Level-3 Dynamics)
-| Symbol | Physical Interpretation | Tensor Shape | Range |
-|:---:|---|---|---|
-| $\mathcal{L}_i(t)$ | The local learning rule vector for node $i$ | `(B, N, 3)` | $\mathbb{R}^3$ |
-| $\alpha_i(t)$ | Error Sensitivity (decay rate of amplitude under high error) | `(B, N)` | $[0.01, 2.0]$ |
-| $\beta_i(t)$ | Coupling Strength (force pulling node $i$ toward its neighbors) | `(B, N)` | $[0.01, 3.0]$ |
-| $\gamma_i(t)$ | Curiosity Weight (force pulling node $i$ down the $U(\theta)$ gradient) | `(B, N)` | $[0.001, 0.5]$ |
-| $\mu$ | The update rate vector for the meta-rules $(\mu_\alpha, \mu_\beta, \mu_\gamma)$ | `(3,)` | e.g., $0.05$ |
-| $w_j$ | The Boltzmann epistemic weight assigned to node $j$'s rule | `(B, N)` | $(0, 1)$ |
-| $\kappa$ | The Boltzmann temperature controlling rule diffusion sharpness | Scalar | e.g., $0.15$ |
+### 9.2 Installation
 
-### D.3 Identity Functional Variables ($H[\mathcal{L}]$)
-| Symbol | Physical Interpretation | Tensor Shape | Range |
-|:---:|---|---|---|
-| $H[\mathcal{L}]$ | The scalar Identity Curvature Functional value | `(B,)` | $[0, \infty)$ |
-| $\mathcal{L}_i(0)$ | The structural memory anchor (frozen initial rule state) | `(B, N, 3)` | $\mathbb{R}^3$ |
-| $\kappa_{id}$ | The scalar weight penalizing homogenization (variance collapse) | Scalar | e.g., $0.50$ |
-| $\lambda$ | The scalar weight of the continuous identity gradient descent | Scalar | e.g., $0.10$ |
-| $\delta_{thresh}$ | The threshold of acute identity trauma triggering a rollback | Scalar | e.g., $0.30$ |
-| $\eta_{rb}$ | The aggressive gradient step size applied during a rollback event | Scalar | e.g., $0.05$ |
+```bash
+git clone https://github.com/Devanik21/Non-Equilibrium-Cognitive-Field
+cd Non-Equilibrium-Cognitive-Field
+pip install -r requirements.txt
+```
 
-### D.4 Environmental Non-Equilibrium Variables
-| Symbol | Physical Interpretation | Mechanism |
+### 9.3 Interactive Dashboard
+
+```bash
+streamlit run app.py
+```
+
+The dashboard provides five live tabs: Phase & Synchrony, Observable Metrics, Rule Dynamics, Identity & Will, and Curiosity Engine — all updating in real-time as the simulation runs.
+
+### 9.4 Batch Simulation
+
+```python
+from experiment import NECFExperiment
+from config import NECFConfig
+
+cfg = NECFConfig()
+exp = NECFExperiment(cfg)
+history = exp.run_batch()
+
+snapshots = history.snapshots
+final = snapshots[-1]
+print(f"Final r:            {final.r:.4f}")
+print(f"Final H[L]:         {final.H:.4f}")
+print(f"Final mean error:   {final.mean_error:.4f}")
+print(f"Rule diversity:     {final.rule_diversity:.6f}")
+print(f"Total rollbacks:    {final.rollback_count}")
+print(f"Lyapunov proxy:     {final.lyapunov_proxy:.4f}")
+```
+
+### 9.5 Custom Configuration
+
+```python
+from config import NECFConfig, FieldConfig, MetaRuleConfig, IdentityConfig
+
+cfg = NECFConfig(
+    field=FieldConfig(N=128, T=5000, dt=0.01),
+    meta_rule=MetaRuleConfig(
+        kappa_boltzmann=0.15,   # sharper contagion
+        beta_init=1.2,          # stronger initial coupling
+    ),
+    identity=IdentityConfig(
+        kappa=0.8,              # stronger diversity penalty
+        rollback_threshold=0.2, # tighter rollback gate
+    ),
+    seed=1337
+)
+
+exp = NECFExperiment(cfg)
+history = exp.run_batch()
+```
+
+---
+
+## 10. Ablation Hierarchy
+
+### 10.1 Level-1 Ablation (Frozen Rules)
+
+Rules $\mathcal{L}_i$ are fixed at initialization for the entire run. The field evolves as a standard Kuramoto model with local (but static) parameters:
+
+```python
+exp_l1 = NECFExperiment.level1_only(cfg)
+history_l1 = exp_l1.run_batch()
+```
+
+This is the **primary null hypothesis baseline**. If NECF (Level-3) cannot statistically outperform Level-1 on P1–P7, the meta-rule dynamics provide no measurable benefit.
+
+### 10.2 Level-2 Ablation (Global Adaptive Coupling)
+
+Only $\beta$ adapts, globally (not per-node), via a mean-field error signal. This reproduces the Ha et al. (2016) adaptive Kuramoto setting:
+
+```python
+exp_l2 = NECFExperiment.level2_adaptive_coupling(cfg)
+history_l2 = exp_l2.run_batch()
+```
+
+$$
+\beta(t + dt) = \beta(t) + 0.01 \cdot (0.5 - \bar{\varepsilon}(t)) \cdot dt
+$$
+
+$\alpha$ and $\gamma$ remain frozen; no per-node differentiation; no epistemic contagion; no identity constraint.
+
+### 10.3 Falsification via Configuration Ablation
+
+| Ablation | Config Change | Predicted Failure |
+|---|---|---|
+| Disable identity | `kappa=0.0`, `lambda_identity=0.0` | Rule diversity → 0 (P5 fails) |
+| Disable contagion | `kappa_boltzmann→∞` | All nodes equally weighted; no adaptation |
+| Winner-takes-all | `kappa_boltzmann=0.001` | Rule field snaps to single node (P5 fails) |
+| No rollback | `rollback_threshold→∞` | H diverges under Lorenz spikes (P2 fails) |
+| Close thermodynamics | `lorenz_eps=0`, `spike_rate=0`, `periodic_eps=0` | Rules collapse to homogeneous fixed point |
+
+These ablations are designed to be **falsifying**: they test specific architectural claims by removing individual components and observing the predicted degradation. A system that degrades correctly under ablation provides stronger evidence for causal, not merely correlational, contributions from each component.
+
+---
+
+## 11. Mathematical Glossary
+
+### 11.1 Substrate Variables (Level-1)
+
+| Symbol | Interpretation | Range |
 |:---:|---|---|
-| $\varepsilon_L$ | Lorenz Chaos perturbation amplitude | Injected spatially into $\frac{d\theta}{dt}$ |
-| $\varepsilon_s$ | Structured Periodic Forcing amplitude | Injected globally into $\frac{dA}{dt}$ |
-| $f_s$ | Frequency of the periodic amplitude driver | Sine wave modulation $2\pi f_s t$ |
-| $\lambda_s$ | The Poisson discrete spike probability rate | Random phase reset $\mathcal{U}(0, 2\pi)$ |
-| $\sigma$ | Continuous thermodynamic baseline noise (Wiener process) | Added to $\frac{dA}{dt}$ |
+| $N$ | Number of oscillator nodes | $\{16, 32, 64, 128\}$ |
+| $\phi_i(t)$ | Complex state $A_i e^{i\theta_i}$ | $\mathbb{C}$ |
+| $\theta_i(t)$ | Phase angle | $[0, 2\pi)$ |
+| $A_i(t)$ | Amplitude (confidence) | $(0, 1]$ |
+| $\omega_i$ | Intrinsic natural frequency (fixed) | $\mathcal{N}(1.0, 0.09)$ |
+| $W_{ij}$ | Symmetric coupling adjacency matrix | $(0, 1.5]$, $W_{ii}=0$ |
+| $r(t)$ | Kuramoto order parameter | $[0, 1]$ |
+| $\psi(t)$ | Mean-field phase | $[0, 2\pi)$ |
+| $\varepsilon_i(t)$ | Local prediction error | $[0, 1]$ |
+| $U(\theta_i)$ | Curiosity potential $(-\log p)$ | $[0, \infty)$ |
+
+### 11.2 Meta-Rule Variables (Level-3)
+
+| Symbol | Interpretation | Range |
+|:---:|---|---|
+| $\mathcal{L}_i(t)$ | Local learning rule vector | $\mathbb{R}^3$ |
+| $\alpha_i(t)$ | Error sensitivity (amplitude decay rate) | $[0.01, 2.0]$ |
+| $\beta_i(t)$ | Coupling strength (synchrony pull) | $[0.01, 3.0]$ |
+| $\gamma_i(t)$ | Curiosity weight (uncertainty gradient) | $[0.001, 0.5]$ |
+| $\boldsymbol{\mu}$ | Meta-update rate vector $(\mu_\alpha, \mu_\beta, \mu_\gamma)$ | $0.05$ each |
+| $w_j$ | Boltzmann epistemic weight of node $j$ | $(0, 1)$ |
+| $\kappa$ | Boltzmann temperature | $0.1$ |
+
+### 11.3 Identity Functional Variables
+
+| Symbol | Interpretation | Value |
+|:---:|---|---|
+| $H[\mathcal{L}]$ | Identity Curvature Functional | $[0, \infty)$ |
+| $\mathcal{L}_i(0)$ | Structural memory anchor | Fixed at $t=0$ |
+| $\kappa_{\text{id}}$ | Homogenization penalty weight | $0.5$ |
+| $\lambda$ | Identity gradient weight in $d\mathcal{L}/dt$ | $0.1$ |
+| $\delta_{\text{thresh}}$ | Rollback trigger threshold | $0.3$ |
+| $\eta_{\text{rb}}$ | Rollback gradient step size | $0.05$ |
+
+### 11.4 Environmental Variables
+
+| Symbol | Interpretation | Value |
+|:---:|---|---|
+| $\varepsilon_L$ | Lorenz phase kick amplitude | $0.05$ |
+| $(\sigma, \rho, \beta_L)$ | Lorenz parameters | $(10, 28, 8/3)$ |
+| $\varepsilon_s$ | Periodic amplitude modulation | $0.03$ |
+| $f_s$ | Periodic forcing frequency | $0.1$ |
+| $\lambda_s$ | Poisson spike rate (per node per step) | $0.02$ |
+| $\sigma$ | Wiener process amplitude noise | $0.02$ |
 
 ---
 
-# Appendix E: The Thermodynamics of Information (Causal Entropy & Proto-Will)
+## 12. Literature Positioning
 
-While the preceding 12 experiments exhaustively validate the core mechanical engine of the Non-Equilibrium Cognitive Field (NECF) architecture, a crucial question remains for future work: **How does the field make a decision?**
+### 12.1 Confirmed Prior Art
 
-If the NECF is merely a substrate that minimizes prediction error $\varepsilon(t)$ by dynamically altering its local learning rules $\mathcal{L}_i(t)$, it is purely reactive. To cross the threshold from a complex dynamical system into a genuinely *cognitive* architecture, it must possess **Agency** (the ability to enact change on its environment) and **Will** (a heuristic for choosing *which* change to enact).
+| NECF Concept | Exists As | Citation |
+|---|---|---|
+| Coupled phase oscillators | Kuramoto model | Kuramoto (1975); Strogatz (1994) |
+| Lyapunov stability for oscillators | van Hemmen & Wreszinski | J. Stat. Phys. 72 (1993) |
+| Adaptive coupling $K_{ij}(t)$ | Adaptive Kuramoto | Ha, Kim & Zhang, SIAM JADS (2016) |
+| Co-evolving structure + dynamics | Neural Reuse | Bassett & Sporns (2023) |
+| Hopfield + Kuramoto memory | Joint model | arXiv:2505.03648 (May 2025) |
+| Free energy / surprise minimization | Free Energy Principle | Friston (2005–2022) |
+| Curiosity as epistemic foraging | Active Inference | Friston (2017) |
+| Meta-learning (learn to learn) | MAML | Finn, Abbeel & Levine (2017) |
+| Dissipative self-organization | Dissipative structures | Prigogine (Nobel, 1977) |
+| Self-modifying agent architecture | ADAS | Hu et al., ICLR (2025) |
 
-In the context of the NECF, "Will" is mathematically formalized as **Constrained Empowerment**.
+### 12.2 The Precise Gap
 
-### E.1 Empowerment: Maximizing Future Accessible States
-Klyubin, Polani, and Nehaniv (2005) defined *Empowerment* as the channel capacity between an agent's actions $A$ and its future sensory states $S'$. An agent that maximizes empowerment seeks to place itself in states where its actions have the maximum possible causal influence on its future environment.
-$$ \mathcal{E} = \max_{p(a)} I(A; S') $$
-Where $I(A; S')$ is the Shannon mutual information between the action sequence and the future state.
+The above components exist in isolation. What does not exist in any reviewed paper is their **specific integration**: a system where the *update rule* for local coupling, error sensitivity, and curiosity is itself a continuous dynamical variable governed by thermodynamically-smooth epistemic contagion, bounded by a scalar identity functional, and made reversible via Lyapunov-gated rollback — without backpropagation, discrete training phases, or external loss functions.
 
-In the NECF framework, we translate this into **Causal Entropy** ($H_{causal}$). When the macroscopic order parameter $r(t)$ reaches a critical bifurcation point—where the field could settle into one of several distinct attractor basins (as visualized in E7: Free Energy Topology)—the system must "choose" an attractor $a$.
+### 12.3 Target Venues
 
-The Causal Entropy of a potential attractor $a$ is defined as the diversity of future state trajectories available if that attractor is chosen:
-$$ H_{causal}(a) = - \sum_{S'} p(S' \mid a) \log p(S' \mid a) $$
-A purely empowerment-driven system would always choose the attractor $a^*$ that maximizes $H_{causal}(a)$. It would constantly seek maximum chaos and maximum optionality.
-
-### E.2 The Identity Distortion Cost ($D_{identity}$)
-However, pure empowerment is biologically and mathematically destructive. An agent that constantly maximizes chaos will eventually tear itself apart (i.e., its identity curvature $H[\mathcal{L}] \to \infty$). 
-
-To constrain empowerment, the NECF introduces the **Identity Distortion Cost**. Every choice of attractor requires a physical restructuring of the meta-rule field $\mathcal{L}$. Some attractors are structurally "nearby" the current rule configuration; some require massive, traumatic rewiring.
-$$ D_{identity}(a) = \frac{1}{N} \sum_{i=1}^N \|\mathcal{L}_{i, \text{attractor } a} - \mathcal{L}_{i, \text{current}}\|^2 $$
-
-### E.3 The Proto-Will Objective Function
-The NECF unifies these two opposing thermodynamic forces (the drive for maximum future optionality vs. the drive for structural self-preservation) into a single, computable objective function: the **Proto-Will**.
-
-At a bifurcation point, the field selects the target attractor $a^*$ according to:
-$$ a^* = \arg\max_a \left[ H_{causal}(a) - \mu_{will} \cdot D_{identity}(a) \right] $$
-Where $\mu_{will}$ is the ontological tradeoff parameter.
-*   If $\mu_{will} \to 0$, the system acts with pure, destructive curiosity.
-*   If $\mu_{will} \to \infty$, the system is completely paralyzed by fear of changing its identity.
-*   At optimal $\mu_{will}$, the system acts intelligently: it chooses the path that grants it the most future influence *without* destroying who it currently is.
-
-This formulation effectively bridges Pearl's Causality (2009) with Friston's Free Energy Principle (2010), embedded directly into the continuous thermodynamic topology of the NECF rules space.
+- **Physical Review E**: Derivation of $H[\mathcal{L}]$, Lyapunov spectrum, phase transition universality
+- **NeurIPS Workshop on Emergence in Complex Systems**: Level-3 ablation study, meta-rule evolution trajectories
+- **ICLR 2027**: Topological memory basins, finite-size scaling, edge-of-chaos regime analysis
 
 ---
 
-# Appendix F: The Full Substrate Python/NumPy Pedagogical Blueprint
+## Citation
 
-For readers attempting to grasp the raw mathematics of the Non-Equilibrium Cognitive Field (NECF) without the abstract dimensionality of PyTorch batched tensor execution, the following code block provides the complete, mathematically unrolled, single-batch $N=64$ NumPy implementation of the Level-3 update step.
-
-This is the *educational* version of the core loop. It is intentionally slow ($O(N^2)$ computed sequentially in Python) but is mathematically pristine, clearly exposing the `numpy` broadcasting, the Boltzmann softmax weighting, and the Identity Curvature Functional $H[\mathcal{L}]$.
-
-```python
-import numpy as np
-
-class NECF_Pedagogical:
-    def __init__(self, N=64, dt=0.01):
-        self.N = N
-        self.dt = dt
-        self.rng = np.random.default_rng(42)
-        
-        # Level-1 Parameters
-        self.omega = self.rng.normal(1.0, 0.3, N)
-        self.phi = self.rng.uniform(0, 2*np.pi, N)
-        self.A = np.full(N, 0.5)
-        
-        # Topology
-        self.W = self.rng.uniform(0.5, 1.5, (N, N))
-        np.fill_diagonal(self.W, 0.0)
-        self.W = (self.W + self.W.T) / 2
-        
-        # Level-3 Meta-Rules: L = [alpha, beta, gamma]
-        self.L = np.column_stack([
-            np.full(N, 0.30) + self.rng.normal(0, 0.01, N), # alpha
-            np.full(N, 0.80) + self.rng.normal(0, 0.01, N), # beta
-            np.full(N, 0.10) + self.rng.normal(0, 0.01, N)  # gamma
-        ])
-        self.L0 = self.L.copy() # Anchor for H[L]
-        
-        # Hyperparameters
-        self.kappa_boltzmann = 0.15
-        self.kappa_id = 0.50
-        self.lambda_id = 0.10
-        self.mu = np.array([0.05, 0.05, 0.05])
-        self.rollback_thresh = 0.30
-        self.eta_rb = 0.05
-        
-        self.t = 0
-        
-    def step(self):
-        # 1. Compute Macroscopic Order Parameter
-        z = np.mean(self.A * np.exp(1j * self.phi))
-        r = np.abs(z)
-        psi = np.angle(z) % (2 * np.pi)
-        
-        # 2. Local Prediction Error
-        eps = np.sin((self.phi - psi) / 2)**2
-        
-        # 3. Phase Update (Kuramoto + Chaos)
-        # Broadcasting to avoid python loops: shape (N, N)
-        phi_diff = self.phi[np.newaxis, :] - self.phi[:, np.newaxis]
-        
-        # sync_pull shape: (N,)
-        sync_pull = np.sum(self.W * self.A[np.newaxis, :] * np.sin(phi_diff), axis=1) / self.N
-        
-        # local beta_i applies to node i
-        beta = self.L[:, 1]
-        
-        # Dummy Lorenz Chaos for educational code
-        lorenz_kick = 0.05 * np.sin(2 * np.pi * np.arange(self.N) / self.N)
-        
-        d_phi = (self.omega + beta * sync_pull + lorenz_kick) * self.dt
-        self.phi = (self.phi + d_phi) % (2 * np.pi)
-        
-        # 4. Amplitude Update
-        alpha = self.L[:, 0]
-        noise = self.rng.normal(0, 0.02, self.N)
-        d_A = (-alpha * eps * self.A + noise) * self.dt
-        self.A = np.clip(self.A + d_A, 0.01, 1.0)
-        
-        # 5. Level-3 Dynamics: Epistemic Contagion
-        L_prev = self.L.copy()
-        
-        # 5a. Boltzmann Softmax Weights
-        log_w = -eps / self.kappa_boltzmann
-        log_w -= np.max(log_w)
-        w = np.exp(log_w) / (np.sum(np.exp(log_w)) + 1e-10) # shape (N,)
-        
-        # 5b. Compute Target Rules via Matrix Multiplication
-        # W_weighted[i, j] = W[i, j] * w[j]
-        W_weighted = self.W * w[np.newaxis, :]
-        row_sums = np.sum(W_weighted, axis=1, keepdims=True) + 1e-10
-        L_target = (W_weighted @ self.L) / row_sums
-        
-        # 5c. Integrate Contagion
-        # Receptivity = node's own error eps_i
-        contagion = self.mu[np.newaxis, :] * (L_target - self.L) * eps[:, np.newaxis]
-        
-        # 6. Level-3 Dynamics: Identity Curvature H[L]
-        # 6a. Compute Current H[L]
-        drift = np.mean(np.sum((self.L - self.L0)**2, axis=1))
-        var = self.kappa_id * np.mean(np.var(self.L, axis=0))
-        H_prev_val = drift + var
-        
-        # 6b. Compute Gradient
-        L_mean = np.mean(self.L, axis=0, keepdims=True)
-        grad_drift = 2.0 * (self.L - self.L0) / self.N
-        grad_var = self.kappa_id * 2.0 * (self.L - L_mean) / self.N
-        grad_H = grad_drift + grad_var
-        
-        # 7. Apply Update and Test for Rollback
-        d_L = (contagion - self.lambda_id * grad_H) * self.dt
-        L_cand = np.clip(self.L + d_L, 0.01, 3.0)
-        
-        # Compute New H[L]
-        drift_cand = np.mean(np.sum((L_cand - self.L0)**2, axis=1))
-        var_cand = self.kappa_id * np.mean(np.var(L_cand, axis=0))
-        H_cand_val = drift_cand + var_cand
-        
-        if (H_cand_val - H_prev_val) > self.rollback_thresh:
-            # Traumatic identity spike -> Rollback & Penalty Step
-            self.L = L_prev - self.eta_rb * grad_H
-        else:
-            self.L = L_cand
-            
-        self.t += self.dt
-        return r, H_cand_val
+```bibtex
+@misc{devanik2026necf,
+  title        = {Non-Equilibrium Cognitive Field: Identity-Constrained Level-3
+                  Meta-Rule Dynamics in Coupled Oscillator Fields},
+  author       = {Devanik},
+  year         = {2026},
+  institution  = {NIT Agartala / IISc (Samsung Fellow)},
+  url          = {https://github.com/Devanik21/Non-Equilibrium-Cognitive-Field},
+  note         = {Research Preprint}
+}
 ```
 
-This snippet mathematically demonstrates the immense philosophical gap between standard Artificial Neural Networks and Level-3 structural evolution. The system dynamically alters *how* it learns over continuous time without ever optimizing an explicitly defined, external loss function.
+---
+
+## Ethics & Scope
+
+The NECF is a **proto-cognitive mathematical substrate**. It is not Artificial General Intelligence. It possesses no natural language comprehension, no spatial awareness beyond its own phase topology, and no goal-directed task logic. Claims of superiority over Level-1 and Level-2 systems are strictly mathematical and thermodynamic: NECF maintains internal coherence and topological diversity better under chaotic assault than static systems. Whether this translates to performance on standard machine learning benchmarks remains unproven and is the subject of ongoing work.
+
+All source code is released under the **Apache 2.0 License** to encourage unfettered academic exploration and independent replication.
 
 ---
 
-# Appendix G: Deep Epistemology of the Order Parameter $r(t)$
-
-To truly understand what the Non-Equilibrium Cognitive Field (NECF) is measuring, one must rigorously interrogate the physical interpretation of its primary observable: the **Macroscopic Order Parameter** $r(t)$. 
-
-Why do we care if $r \to 1$? Is a completely synchronized system "intelligent"? 
-
-### G.1 The Fallacy of Complete Coherence
-In a classical physical system (e.g., fireflies flashing, pacemaker cells in the heart, pendulum clocks on a wall), complete synchronization ($r=1.0$) is the optimal state. The system reaches equilibrium, all work ceases, and the collective behaves as a single giant macro-oscillator.
-
-In a *cognitive* system (a brain, an AI, an active inference agent), complete synchronization is pathological. It represents a state of catatonia, epilepsy (seizures), or absolute, unshakeable dogma. A cognitive system with $r=1.0$ cannot process new information, because every node in the network is locked into the exact same phase state $\phi(t)$. There is no spatial diversity to react to spatially distributed external stimuli. 
-
-### G.2 The Edge of Chaos: The Optimal $r(t)$ Regime
-The NECF is mathematically designed to *avoid* $r=1.0$. 
-
-The combination of the intrinsic frequency diversity ($\sigma_\omega = 0.3$), the chaotic Lorenz spatial perturbation, and the discrete Poisson spiking guarantees that the system is constantly being ripped apart. 
-
-Simultaneously, the Level-3 meta-rules (specifically the coupling parameter $\beta_i$) are evolving to pull the system back together. 
-
-The resulting steady-state $r_{ss}$, as measured in **Experiment 4 (The Core Ablation)**, typically hovers around $r \approx 0.6 \to 0.8$. This is the "Edge of Chaos". 
-*   If $r < 0.2$ (Incoherent), the system is deaf; nodes cannot share information, and the field acts as pure noise.
-*   If $r > 0.9$ (Crystalline), the system is blind; nodes are too tightly bound to react to novelty.
-*   If $0.5 \leq r \leq 0.8$ (Complex), the system is fluid. It has enough coherence to maintain a macro-identity, but enough local flexibility to compute and adapt.
-
-The proof that **Level-3 is superior to Level-1 and Level-2** lies in the fact that the NECF mathematically *finds and maintains* this fluid regime significantly better than a system with static rules. A Level-1 system, when hammered by chaos, will often shatter ($r \to 0.1$). A Level-3 system dynamically raises its coupling strength to resist the shattering, and raises its error-sensitivity to isolate nodes that are hallucinating, maintaining a coherent $r \approx 0.7$.
-
----
-
-# Appendix H: The Role of Spatially Distributed Deterministic Chaos
-
-Why inject deterministic chaos into a cognitive architecture? Why not simply use Gaussian white noise $\eta(t)$?
-
-### H.1 The Necessity of Structure in Perturbation
-Gaussian white noise (a Wiener process $W_t$) contains no structure. It is totally uncorrelated in time ($E[W_t W_{t+\tau}] = 0$) and space. A network hit with white noise is merely being heated up. A system that adapts to white noise is only adapting to thermal background radiation.
-
-To prove that a system possesses *proto-cognitive* properties, it must adapt to **structured complexity**. 
-
-### H.2 The Physics of the Lorenz System
-The Lorenz Attractor (1963) is the classic hallmark of deterministic chaos:
-$$ \frac{dx}{dt} = \sigma(y - x) $$
-$$ \frac{dy}{dt} = x(\rho - z) - y $$
-$$ \frac{dz}{dt} = xy - \beta z $$
-
-The $x(t)$ trajectory oscillates aperiodically between two "wings" (attractors). It is fundamentally deterministic but completely unpredictable over long horizons (sensitive dependence on initial conditions). 
-
-### H.3 Spatial Distribution in the NECF Field
-In the NECF, the Lorenz variable $x(t)$ is injected into the phase dynamics:
-$$ \Delta\theta_i^{\text{Lorenz}} = \varepsilon_L \cdot x(t) \cdot \sin\left(\frac{2\pi i}{N}\right) $$
-
-Notice the $\sin\left(\frac{2\pi i}{N}\right)$ spatial term. 
-*   Nodes near $i=N/4$ receive a strong *positive* chaotic kick.
-*   Nodes near $i=3N/4$ receive a strong *negative* chaotic kick.
-*   Nodes near $i=0$ and $i=N/2$ receive almost *zero* kick.
-
-**The Epistemological Proof:** We are mathematically ripping the network in half in a structured, complex, aperiodic manner. The network must physically learn (via its meta-rules) how to transfer coupling strength ($\beta$) from the "safe" nodes at the equator to the "hammered" nodes at the poles to maintain coherence. 
-
-If the Level-3 NECF can maintain a higher $r(t)$ and lower $\varepsilon(t)$ under this specific, structured topological assault compared to Level-1, we have mathematically proven that the evolving meta-rules are executing spatially-aware structural adaptation.
-
----
-
-# Appendix I: Continuous QR Decomposition for Lyapunov Spectrums
-
-Experiment 5 utilizes the continuous QR decomposition method to extract the full Lyapunov spectrum of the NECF system. This is a highly advanced numerical technique that requires explicit Jacobian tracking.
-
-### I.1 The Tangent Space Dynamics
-Given a dynamical system $\dot{x} = f(x)$, the evolution of a small perturbation $\delta x$ is governed by the Jacobian matrix $J(x)$:
-$$ \delta \dot{x} = J(x) \delta x $$
-Where $J_{ij} = \frac{\partial f_i}{\partial x_j}$.
-
-In the NECF phase evolution equation (Eq. 4.2), the Jacobian elements are derived analytically:
-$$ J_{ii} = - \frac{1}{N} \sum_{j \neq i} \beta_i W_{ij} A_j \cos(\theta_j - \theta_i) $$
-$$ J_{ij} = \frac{1}{N} \beta_i W_{ij} A_j \cos(\theta_j - \theta_i) \quad (i \neq j) $$
-
-### I.2 Gram-Schmidt Orthogonalization (QR Method)
-To prevent the perturbation vectors from naturally aligning with the direction of maximal expansion (the dominant Lyapunov vector), we continuously track an orthogonal set of basis vectors $Q$.
-
-At each integration step $dt$:
-1. We evolve the basis vectors: $Z = (I + J(\theta) dt) Q$
-2. We perform a QR decomposition: $Q_{new}, R = \text{qr}(Z)$
-3. The diagonal elements of the upper-triangular matrix $R$ yield the local expansion/contraction rates.
-4. The Lyapunov exponents are accumulated: $\lambda_k += \ln(|R_{kk}|)$.
-
-Averaged over $T \to \infty$, this yields the exact, ordered Lyapunov spectrum $\lambda_1 \geq \lambda_2 \dots \geq \lambda_N$. This completely validates whether the NECF resides in a fixed point ($\lambda_1 < 0$), a limit cycle ($\lambda_1 = 0$), or the targeted **bounded chaos** regime ($\lambda_1 > 0$).
-
----
-
-# Appendix J: Detailed Reproducibility Guide for Academic Reviewers
-
-For reviewers intending to verify or build upon the PyTorch implementation in `1_NECF_Final_Research_Notebook.ipynb`, this section provides an exhaustive run-guide.
-
-### J.1 Environment Verification
-Ensure the runtime is set to an NVIDIA T4 GPU (or better). 
-`torch.cuda.is_available()` must return `True`. If executed on a CPU, Experiment 4 ($B=100, T=15,000$) will take hours instead of ~90 seconds.
-
-### J.2 Falsification via the Config Block
-The entire architecture is parameterized by the `NECFConfig` class. You can easily break the system to verify the theory:
-1. **Break Identity:** Set `kappa_identity = 0.0`. Run E9. Watch the 3D meta-rules drift to infinity.
-2. **Break Contagion:** Set `kappa_boltzmann = 0.001` (winner-takes-all). Watch the rule variance collapse to 0 in E4.
-3. **Break Thermodynamics:** Set `lorenz_eps = 0.0, periodic_eps=0.0, spike_rate=0.0`. Run E8. Watch the open system suffer "thermal death".
-
-### J.3 Running the Main Ablation (E4)
-Ensure $T_{abl} = 15,000$ and $B_{abl} = 100$. The $p$-values computed via SciPy's `ttest_ind` should consistently show $p < 0.05$ for L3 > L1 and L3 > L2. Cohen's $d$ should be positive, indicating a substantial effect size.
-
-### J.4 Executing the Falsifiable Dashboard (E12)
-The final cell automatically aggregates all macroscopic arrays (`r_l3`, `H_l3`, `eps_l3`, `Lv_l3`). It evaluates strict logical bounds (e.g., $H_{max} < 5.0$). A successful architecture will print exactly `7/7 predictions satisfied`.
-
-<br>
-<br>
 <div align="center">
-<i>End of Formal Proof Addendum.</i><br>
-<i>"Intelligence is not merely a function of the state; it is a function of the rules governing the state, adapting dynamically to the state."</i>
-</div>
 
----
+*"Intelligence is not merely a function of the state; it is a function of the rules governing the state, adapting dynamically to the state."*
 
-# Appendix K: The Full Python/NumPy Pedagogical Implementation
+**Devanik** | NIT Agartala | Samsung Convergence Software Fellow, IISc | March 2026
 
-For readers attempting to grasp the raw mathematics of the Non-Equilibrium Cognitive Field (NECF) without the abstract dimensionality of PyTorch batched tensor execution, the following code block provides the complete, mathematically unrolled, single-batch $N=64$ NumPy implementation of the Level-3 update step.
-
-This is the *educational* version of the core loop. It is intentionally slow ($O(N^2)$ computed sequentially in Python) but is mathematically pristine, clearly exposing the `numpy` broadcasting, the Boltzmann softmax weighting, and the Identity Curvature Functional $H[\mathcal{L}]$.
-
-```python
-import numpy as np
-
-class NECF_Pedagogical:
-    def __init__(self, N=64, dt=0.01):
-        self.N = N
-        self.dt = dt
-        self.rng = np.random.default_rng(42)
-        
-        # Level-1 Parameters
-        self.omega = self.rng.normal(1.0, 0.3, N)
-        self.phi = self.rng.uniform(0, 2*np.pi, N)
-        self.A = np.full(N, 0.5)
-        
-        # Topology
-        self.W = self.rng.uniform(0.5, 1.5, (N, N))
-        np.fill_diagonal(self.W, 0.0)
-        self.W = (self.W + self.W.T) / 2
-        
-        # Level-3 Meta-Rules: L = [alpha, beta, gamma]
-        self.L = np.column_stack([
-            np.full(N, 0.30) + self.rng.normal(0, 0.01, N), # alpha
-            np.full(N, 0.80) + self.rng.normal(0, 0.01, N), # beta
-            np.full(N, 0.10) + self.rng.normal(0, 0.01, N)  # gamma
-        ])
-        self.L0 = self.L.copy() # Anchor for H[L]
-        
-        # Hyperparameters
-        self.kappa_boltzmann = 0.15
-        self.kappa_id = 0.50
-        self.lambda_id = 0.10
-        self.mu = np.array([0.05, 0.05, 0.05])
-        self.rollback_thresh = 0.30
-        self.eta_rb = 0.05
-        
-        self.t = 0
-        
-    def step(self):
-        # 1. Compute Macroscopic Order Parameter
-        z = np.mean(self.A * np.exp(1j * self.phi))
-        r = np.abs(z)
-        psi = np.angle(z) % (2 * np.pi)
-        
-        # 2. Local Prediction Error
-        eps = np.sin((self.phi - psi) / 2)**2
-        
-        # 3. Phase Update (Kuramoto + Chaos)
-        # Broadcasting to avoid python loops: shape (N, N)
-        phi_diff = self.phi[np.newaxis, :] - self.phi[:, np.newaxis]
-        
-        # sync_pull shape: (N,)
-        sync_pull = np.sum(self.W * self.A[np.newaxis, :] * np.sin(phi_diff), axis=1) / self.N
-        
-        # local beta_i applies to node i
-        beta = self.L[:, 1]
-        
-        # Dummy Lorenz Chaos for educational code
-        lorenz_kick = 0.05 * np.sin(2 * np.pi * np.arange(self.N) / self.N)
-        
-        d_phi = (self.omega + beta * sync_pull + lorenz_kick) * self.dt
-        self.phi = (self.phi + d_phi) % (2 * np.pi)
-        
-        # 4. Amplitude Update
-        alpha = self.L[:, 0]
-        noise = self.rng.normal(0, 0.02, self.N)
-        d_A = (-alpha * eps * self.A + noise) * self.dt
-        self.A = np.clip(self.A + d_A, 0.01, 1.0)
-        
-        # 5. Level-3 Dynamics: Epistemic Contagion
-        L_prev = self.L.copy()
-        
-        # 5a. Boltzmann Softmax Weights
-        log_w = -eps / self.kappa_boltzmann
-        log_w -= np.max(log_w)
-        w = np.exp(log_w) / (np.sum(np.exp(log_w)) + 1e-10) # shape (N,)
-        
-        # 5b. Compute Target Rules via Matrix Multiplication
-        # W_weighted[i, j] = W[i, j] * w[j]
-        W_weighted = self.W * w[np.newaxis, :]
-        row_sums = np.sum(W_weighted, axis=1, keepdims=True) + 1e-10
-        L_target = (W_weighted @ self.L) / row_sums
-        
-        # 5c. Integrate Contagion
-        # Receptivity = node's own error eps_i
-        contagion = self.mu[np.newaxis, :] * (L_target - self.L) * eps[:, np.newaxis]
-        
-        # 6. Level-3 Dynamics: Identity Curvature H[L]
-        # 6a. Compute Current H[L]
-        drift = np.mean(np.sum((self.L - self.L0)**2, axis=1))
-        var = self.kappa_id * np.mean(np.var(self.L, axis=0))
-        H_prev_val = drift + var
-        
-        # 6b. Compute Gradient
-        L_mean = np.mean(self.L, axis=0, keepdims=True)
-        grad_drift = 2.0 * (self.L - self.L0) / self.N
-        grad_var = self.kappa_id * 2.0 * (self.L - L_mean) / self.N
-        grad_H = grad_drift + grad_var
-        
-        # 7. Apply Update and Test for Rollback
-        d_L = (contagion - self.lambda_id * grad_H) * self.dt
-        L_cand = np.clip(self.L + d_L, 0.01, 3.0)
-        
-        # Compute New H[L]
-        drift_cand = np.mean(np.sum((L_cand - self.L0)**2, axis=1))
-        var_cand = self.kappa_id * np.mean(np.var(L_cand, axis=0))
-        H_cand_val = drift_cand + var_cand
-        
-        if (H_cand_val - H_prev_val) > self.rollback_thresh:
-            # Traumatic identity spike -> Rollback & Penalty Step
-            self.L = L_prev - self.eta_rb * grad_H
-        else:
-            self.L = L_cand
-            
-        self.t += self.dt
-        return r, H_cand_val
-```
-
-This minimal snippet mathematically demonstrates the immense philosophical gap between standard Artificial Neural Networks and Level-3 structural evolution. The system dynamically alters *how* it learns over continuous time without ever optimizing an explicitly defined, external loss function.
-
----
-
-# Appendix L: Free Energy Topology & K-Means Memory Basins
-
-If the NECF is to be considered a "proto-cognitive" architecture, it must demonstrate a fundamental capacity for **Memory**. 
-In dynamical systems theory, memory is defined as the existence of multiple distinct stable states (attractor basins). A system placed in Basin $A$ will remain in $A$; a system placed in Basin $B$ will remain in $B$, despite the presence of continuous thermodynamic noise.
-
-### L.1 The Complex Mapping of Circular Topology
-To formally prove the existence of these basins in the NECF, we run $B=100$ independent trials, starting from entirely random, incoherent initial phase distributions $\phi(0) \sim \mathcal{U}(0, 2\pi)$. 
-
-After integration, the system settles into a steady state. We extract the final phase vector $\phi(T) \in [0, 2\pi)^N$ for all $B=100$ trials. 
-
-However, because phases are circular ($\phi = 0$ is mathematically identical to $\phi = 2\pi$), we cannot perform standard Euclidean clustering on the raw angles. We map the phases to the complex plane:
-$$ X = [\cos(\phi_1), \sin(\phi_1), \cos(\phi_2), \sin(\phi_2), \dots, \cos(\phi_N), \sin(\phi_N)] $$
-The dataset $X$ is now a matrix of shape `(100, 128)` lying in $\mathbb{R}^{2N}$.
-
-### L.2 PCA and K-Means Clustering
-We reduce the dimensionality of the complex phase distributions using Principal Component Analysis (PCA), projecting the 128-dimensional state down to 2 principal components.
-
-We then apply K-Means clustering to $X$. By sweeping $K$ from $1$ to $15$ and plotting the Inertia (Sum of Squared Errors), we locate the "Elbow Point".
-*   **Result:** The Elbow Method in Experiment 7 cleanly reveals $k \approx 4$ or $k \approx 5$ distinct clusters. 
-*   **Conclusion:** The 100 totally random initializations reliably collapsed into 5 fundamental topological patterns. These are the **Free Energy Attractor Basins**. 
-
-This mathematically proves that the NECF possesses intrinsic, unsupervised memory storage capacity. It can "remember" $k=5$ distinct identities (or concepts) solely encoded in its meta-rule and phase-coupling topology, completely absent any backpropagation or discrete training phase.
-
----
-
-# Appendix M: Finite-Size Scaling ($N \to \infty$)
-
-Experiment 11 formally tests whether the Level-3 meta-rule advantage is a transient artifact of small networks ($N=16$), or a structural property that scales.
-
-In statistical mechanics, finite-size scaling determines whether a phase transition survives the thermodynamic limit $N \to \infty$. We run the standard L1 vs L3 ablation test at $N \in \{16, 32, 64, 128\}$.
-
-*   At $N=16$, the delta in the order parameter ($\Delta r = r_{L3} - r_{L1}$) is positive but relatively small ($\approx +0.02$).
-*   At $N=64$, $\Delta r \approx +0.05$.
-*   At $N=128$, $\Delta r \approx +0.08$.
-
-**The Scaling Proof:** The Level-3 advantage actually *increases* as the network grows. In larger networks, the spatially distributed Lorenz chaos ($\Delta_{ext}$) creates more complex, localized stress gradients. A static Level-1 network shatters under this complexity. The Level-3 network uses epistemic contagion to actively route "healthy" rules to the stressed regions, maintaining field coherence. The larger the network, the more critical this Level-3 routing becomes.
-
----
-
-# Appendix N: Acknowledgements & Research Context
-
-The formalization of the **Non-Equilibrium Cognitive Field (NECF)** is an independent theoretical proposition authored by Devanik (B.Tech ECE '26, NIT Agartala), executed under the broad philosophical umbrellas of Statistical Mechanics, Nonlinear Dynamics, and Meta-Learning.
-
-### Formal Disclaimers & Ethics
-*   The NECF is a proto-cognitive substrate. It is **not** Artificial General Intelligence (AGI). It possesses no natural language comprehension, no spatial awareness beyond its own phase topology, and no goal-directed task logic.
-*   The claims of "superiority" over Level-1 and Level-2 systems are strictly mathematical and thermodynamic. A Level-3 system maintains internal coherence and topological diversity better under chaotic assault than a static system. Whether this translates to better accuracy on standard deep learning benchmarks (like MNIST, ImageNet, or Transformer context windows) is entirely unproven and remains the focus of future work.
-
-### Target Venues & Open Source Contribution
-The source code contained in this repository, including the high-performance PyTorch GPU logic and the extensive analytical frameworks, is released entirely open-source under the Apache 2.0 License to encourage unfettered academic exploration. 
-
-Future revisions of this mathematical framework will be targeted for formal submission to:
-*   **Physical Review E** (Focusing on the derivation of $H[\mathcal{L}]$, the Lyapunov spectrum $D_{KY}$, and the phase transition universality $\beta$).
-*   **The Conference on Neural Information Processing Systems (NeurIPS)** (Focusing on the topological memory basins $k=5$, the ablation study $L3 > L1$, and the meta-rule algorithmic implementation).
-
----
-
-# Appendix O: Formal Derivations of the Seven Falsifiable Predictions
-
-Any scientific theory must make bold, falsifiable predictions prior to empirical testing. The NECF makes seven. In the flagship notebook (`1_NECF_Final_Research_Notebook.ipynb`), these are aggregated and tested in **Experiment 12 (E12)**. 
-
-This section details the exact mathematical bounds for each prediction, derived from first-principles Non-Equilibrium Thermodynamics.
-
-### O.1 Prediction 1 (P1): Macroscopic Coherence (Phase Transition)
-**Hypothesis:** A functionally cognitive substrate cannot operate in total noise. If placed in the synchronizing regime ($K > K_c$), the final order parameter must rise above the chaotic background limit.
-**Threshold:** $r_{final} > 0.20$.
-**Derivation:** The chaotic background for $N$ random oscillators is $r_{bg} \approx 1/\sqrt{N}$. For $N=64$, $r_{bg} \approx 0.125$. The threshold of $0.20$ guarantees (with $> 3\sigma$ confidence) that the meta-rule evolution is not randomly destroying the field's intrinsic synchrony pull.
-**Result in E12:** `[PASS]` ($r_{final} \approx 0.65 - 0.75$).
-
-### O.2 Prediction 2 (P2): Identity Stability Bounds
-**Hypothesis:** The Identity Curvature Functional $H[\mathcal{L}]$ mathematically prevents chaotic drift ($H \to \infty$) and catatonic homogenization ($H \to 0$).
-**Threshold:** $H_{max} < 5.0$ AND $H_{final} > 0.0$.
-**Derivation:** The rule dimensions are $\alpha \in [0, 2], \beta \in [0, 3], \gamma \in [0, 0.5]$. The maximal possible $L_2$ squared drift is $\approx (2-0.3)^2 + (3-0.8)^2 + (0.5-0.1)^2 \approx 7.89$. An $H_{max}$ cutoff of $5.0$ guarantees the system remains within the central "viable basin" mapped in E3, without slamming violently into the hard boundaries.
-**Result in E12:** `[PASS]` ($H_{final} \approx 0.5 - 2.5$).
-
-### O.3 Prediction 3 (P3): Thermodynamic Error Suppression
-**Hypothesis:** The explicit function of Level-3 meta-rules is to improve upon static Level-1 rules. Therefore, the macroscopic prediction error $\overline{\varepsilon}(t)$ must structurally decrease as the rules learn how to route coupling.
-**Threshold:** $\overline{\varepsilon}_{late} < \overline{\varepsilon}_{early}$.
-**Derivation:** We take the mean error over the first $500$ steps (the transient chaos phase) and compare it against the mean error over the final $500$ steps of the $T=15,000$ run. Because the Lorenz driver is continuous, the error will never reach $0.0$. However, it must be strictly lower than the initial shock.
-**Result in E12:** `[PASS]` (Error definitively drops and plateaus).
-
-### O.4 Prediction 4 (P4): The Edge of Chaos (Lyapunov Limits)
-**Hypothesis:** The system must not freeze completely into a point attractor ($\lambda_1 < 0$) or explode into unbounded chaos ($\lambda_1 \gg 1.0$).
-**Threshold:** $\lambda_1 \in (-0.5, 0.8)$.
-**Derivation:** The maximal Lyapunov exponent determines the exponential divergence of trajectories $\delta(t) \sim \delta(0) e^{\lambda t}$. The lower bound $-0.5$ prevents catastrophic freezing (catatonia). The upper bound $0.8$ ensures that while trajectories diverge locally (a prerequisite for information processing), they remain globally bounded by the strange attractor.
-**Result in E12:** `[PASS]` ($\lambda_1$ typically hovers around $0.0 - 0.2$).
-
-### O.5 Prediction 5 (P5): Rule Diversity Preservation
-**Hypothesis:** The variance of the rule field cannot collapse to exactly zero. If it does, the field has homogenized, spatial diversity is lost, and the system reverts mathematically to a Level-1 static network.
-**Threshold:** $10^{-7} < \overline{\text{Var}}(\mathcal{L}) < 10.0$.
-**Derivation:** The homogenization penalty in $H[\mathcal{L}]$ explicitly forces the nodes away from the mean rule $\bar{\mathcal{L}}$. A variance lower than $10^{-7}$ implies numerical collapse of the Boltzmann contagion engine (i.e., all weights became perfectly equal).
-**Result in E12:** `[PASS]` (Variance consistently bounded around $10^{-2}$).
-
-### O.6 Prediction 6 (P6): Active Rollback Firing
-**Hypothesis:** The Thermodynamic Rollback fail-safe is not a vestigial component; it is an actively required mechanism to survive massive chaotic shocks.
-**Threshold:** Total Rollbacks $> 0$.
-**Derivation:** Over $T=15,000$ steps, the Lorenz driver will inevitably trace out extreme spikes in $x(t)$. The numerical integration ($dt=0.01$) will occasionally fail to catch an identity rupture. The rollback must trigger to preserve the topology.
-**Result in E12:** `[PASS]` (The rollback actively fires and saves the system during trauma).
-
-### O.7 Prediction 7 (P7): Adaptive Rollback Rate
-**Hypothesis:** If the meta-rules are genuinely learning, they should arrange themselves into a topological formation that is *more resilient* to future shocks. Therefore, the frequency of traumatic rollbacks should decrease over time.
-**Threshold:** $\text{Rate}_{late} \leq \text{Rate}_{early} + 10^{-6}$.
-**Derivation:** The rollback rate is measured as the gradient of the cumulative rollback count. A strictly non-increasing rate proves that the meta-rules have successfully found a stable attractor basin (as proven in E7) and are no longer tearing themselves apart.
-**Result in E12:** `[PASS]` (The rollback rate spikes early and then drops asymptotically to near-zero).
-
----
-
-# Appendix P: The Full Experimental Pseudocode for Reproducibility
-
-For researchers attempting to replicate Experiment 4 (The Core Ablation Study) and Experiment 7 (Free Energy Topology) without relying on Google Colab or the provided PyTorch Notebooks, the following high-level pseudocode explicitly outlines the batching and statistical aggregation mechanisms used to generate the $p$-values and topological clusters.
-
-### P.1 Experiment 4: The Ablation Monte Carlo Loop
-This loop tests whether Level-3 dynamics (evolving local rules) consistently outperform Level-1 (frozen rules) and Level-2 (adaptive global rules) across $B$ entirely random spatial topologies.
-
-```text
-Algorithm: E4_Ablation(T, B, dt)
-Input: 
-  T: Total timesteps (e.g., 15,000)
-  B: Number of independent parallel trials (e.g., 100)
-  dt: Integration step (e.g., 0.01)
-
-Initialize:
-  Generate B distinct sets of natural frequencies (omega ~ N(1.0, 0.3))
-  Generate B distinct symmetric adjacency matrices (W ~ U(0.5, 1.5))
-  Generate B distinct initial rule fields (L0 ~ [0.3, 0.8, 0.1])
-  
-  Define 3 simulation engines (L1, L2, L3) sharing EXACTLY the same W, omega, L0.
-
-For each engine in [L1, L2, L3]:
-  For t = 1 to T:
-    Execute_Substrate_Phase_And_Amplitude_Update()
-    If engine == L1:
-      Keep L static.
-    If engine == L2:
-      Update global beta based on mean field error.
-    If engine == L3:
-      Execute_Boltzmann_Contagion()
-      Execute_Identity_Gradient_And_Rollback()
-    
-    Record order_parameter[engine, batch, t]
-
-Extract Steady-State:
-  tail_indices = [0.8 * T to T]
-  r_ss_L1 = mean(order_parameter[L1, :, tail_indices])
-  r_ss_L2 = mean(order_parameter[L2, :, tail_indices])
-  r_ss_L3 = mean(order_parameter[L3, :, tail_indices])
-
-Statistics:
-  p_value_13 = TTest(r_ss_L3 > r_ss_L1)
-  cohens_d_13 = EffectSize(r_ss_L3, r_ss_L1)
-
-Output:
-  If p_value_13 < 0.05 and cohens_d_13 > 0.5:
-    Print "Level-3 is statistically superior."
-```
-
-By providing these explicit algorithmic blueprints, the core scientific claims of the NECF architecture are made fully transparent and rigorously falsifiable by the global academic community.
-
-<br>
-<div align="center">
-<i>"End of Final Analytical Addendum."</i><br>
 </div>
