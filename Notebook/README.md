@@ -5,7 +5,7 @@
 ### Identity-Constrained Level-3 Meta-Rule Dynamics in Coupled Oscillator Fields
 
 **Devanik**  
-B.Tech ECE '26, NIT Agartala | Samsung Convergence Software Fellow, IISc
+B.Tech ECE '26, NIT Agartala | Samsung  Fellow, IISc
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)]()
 [![PyTorch](https://img.shields.io/badge/NumPy%2FNumba-Optimized-013243?style=for-the-badge&logo=numpy&logoColor=white)]()
@@ -685,6 +685,6 @@ All source code is released under the **Apache 2.0 License** to encourage unfett
 
 *"Intelligence is not merely a function of the state; it is a function of the rules governing the state, adapting dynamically to the state."*
 
-**Devanik** | NIT Agartala | Samsung Convergence Software Fellow, IISc | March 2026
+**Devanik** | NIT Agartala | Samsung Fellow, IISc | March 2026
 
 </div>
