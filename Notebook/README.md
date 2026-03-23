@@ -913,3 +913,135 @@ The PyTorch GPU simulations contained within `NECF_Research_Notebook_Final.ipynb
 <br>
 <b>Document EOF.</b>
 </div>
+
+---
+
+# Appendix P: The Full Substrate Python/NumPy Pedagogical Blueprint
+
+For readers attempting to grasp the raw mathematics of the Non-Equilibrium Cognitive Field (NECF) without the abstract dimensionality of PyTorch batched tensor execution, the following code block provides the complete, mathematically unrolled, single-batch `N=64` NumPy implementation of the Level-3 update step.
+
+This is the *educational* version of the core loop. It is intentionally slow ($O(N^2)$ computed sequentially in Python) but is mathematically pristine, clearly exposing the `numpy` broadcasting, the Boltzmann softmax weighting, and the Identity Curvature Functional $H[\mathcal{L}]$.
+
+```python
+import numpy as np
+
+class NECF_Pedagogical:
+    def __init__(self, N=64, dt=0.01):
+        self.N = N
+        self.dt = dt
+        self.rng = np.random.default_rng(42)
+        
+        # Level-1 Parameters
+        self.omega = self.rng.normal(1.0, 0.3, N)
+        self.phi = self.rng.uniform(0, 2*np.pi, N)
+        self.A = np.full(N, 0.5)
+        
+        # Topology
+        self.W = self.rng.uniform(0.5, 1.5, (N, N))
+        np.fill_diagonal(self.W, 0.0)
+        self.W = (self.W + self.W.T) / 2
+        
+        # Level-3 Meta-Rules: L = [alpha, beta, gamma]
+        self.L = np.column_stack([
+            np.full(N, 0.30) + self.rng.normal(0, 0.01, N), # alpha
+            np.full(N, 0.80) + self.rng.normal(0, 0.01, N), # beta
+            np.full(N, 0.10) + self.rng.normal(0, 0.01, N)  # gamma
+        ])
+        self.L0 = self.L.copy() # Anchor for H[L]
+        
+        # Hyperparameters
+        self.kappa_boltzmann = 0.10
+        self.kappa_id = 0.50
+        self.lambda_id = 0.10
+        self.mu = np.array([0.05, 0.05, 0.05])
+        self.rollback_thresh = 0.30
+        self.eta_rb = 0.05
+        
+        self.t = 0
+        
+    def step(self):
+        # 1. Compute Macroscopic Order Parameter
+        z = np.mean(self.A * np.exp(1j * self.phi))
+        r = np.abs(z)
+        psi = np.angle(z) % (2 * np.pi)
+        
+        # 2. Local Prediction Error
+        eps = np.sin((self.phi - psi) / 2)**2
+        
+        # 3. Phase Update (Kuramoto + Chaos)
+        # Broadcasting to avoid python loops: shape (N, N)
+        phi_diff = self.phi[np.newaxis, :] - self.phi[:, np.newaxis]
+        
+        # sync_pull shape: (N,)
+        sync_pull = np.sum(self.W * self.A[np.newaxis, :] * np.sin(phi_diff), axis=1) / self.N
+        
+        # local beta_i applies to node i
+        beta = self.L[:, 1]
+        
+        # Dummy Lorenz Chaos for educational code
+        lorenz_kick = 0.05 * np.sin(2 * np.pi * np.arange(self.N) / self.N)
+        
+        d_phi = (self.omega + beta * sync_pull + lorenz_kick) * self.dt
+        self.phi = (self.phi + d_phi) % (2 * np.pi)
+        
+        # 4. Amplitude Update
+        alpha = self.L[:, 0]
+        noise = self.rng.normal(0, 0.02, self.N)
+        d_A = (-alpha * eps * self.A + noise) * self.dt
+        self.A = np.clip(self.A + d_A, 0.01, 1.0)
+        
+        # 5. Level-3 Dynamics: Epistemic Contagion
+        L_prev = self.L.copy()
+        
+        # 5a. Boltzmann Softmax Weights
+        log_w = -eps / self.kappa_boltzmann
+        log_w -= np.max(log_w)
+        w = np.exp(log_w) / (np.sum(np.exp(log_w)) + 1e-10) # shape (N,)
+        
+        # 5b. Compute Target Rules via Matrix Multiplication
+        # W_weighted[i, j] = W[i, j] * w[j]
+        W_weighted = self.W * w[np.newaxis, :]
+        row_sums = np.sum(W_weighted, axis=1, keepdims=True) + 1e-10
+        L_target = (W_weighted @ self.L) / row_sums
+        
+        # 5c. Integrate Contagion
+        # Receptivity = node's own error eps_i
+        contagion = self.mu[np.newaxis, :] * (L_target - self.L) * eps[:, np.newaxis]
+        
+        # 6. Level-3 Dynamics: Identity Curvature H[L]
+        # 6a. Compute Current H[L]
+        drift = np.mean(np.sum((self.L - self.L0)**2, axis=1))
+        var = self.kappa_id * np.mean(np.var(self.L, axis=0))
+        H_prev_val = drift + var
+        
+        # 6b. Compute Gradient
+        L_mean = np.mean(self.L, axis=0, keepdims=True)
+        grad_drift = 2.0 * (self.L - self.L0) / self.N
+        grad_var = self.kappa_id * 2.0 * (self.L - L_mean) / self.N
+        grad_H = grad_drift + grad_var
+        
+        # 7. Apply Update and Test for Rollback
+        d_L = (contagion - self.lambda_id * grad_H) * self.dt
+        L_cand = np.clip(self.L + d_L, 0.01, 3.0)
+        
+        # Compute New H[L]
+        drift_cand = np.mean(np.sum((L_cand - self.L0)**2, axis=1))
+        var_cand = self.kappa_id * np.mean(np.var(L_cand, axis=0))
+        H_cand_val = drift_cand + var_cand
+        
+        if (H_cand_val - H_prev_val) > self.rollback_thresh:
+            # Traumatic identity spike -> Rollback & Penalty Step
+            self.L = L_prev - self.eta_rb * grad_H
+        else:
+            self.L = L_cand
+            
+        self.t += self.dt
+        return r, H_cand_val
+```
+
+This minimal snippet mathematically demonstrates the immense philosophical gap between Level-1 machine learning and Level-3 structural evolution. The system dynamically alters *how* it learns over continuous time without ever optimizing an explicitly defined, external loss function.
+
+---
+<div align="center">
+<i>End of Addendum.</i>
+</div>
