@@ -404,7 +404,9 @@ The standard Lyapunov proxy $\lambda \approx \frac{1}{\Delta t} \log \|\delta\th
 
 The **masked Lyapunov proxy** computes phase divergence only on nodes that were NOT spiked in the current or previous step:
 
-$$\lambda_{\text{proxy}} = \frac{1}{\Delta t} \log \left( \frac{\delta \theta \sim \text{spike\_mask}}{\sqrt{N_{\text{valid}}}} \right)$$
+$$\lambda_{\text{proxy}} = \frac{1}{\Delta t} \log \left( \frac{\sqrt{\sum (\delta \theta \cdot \text{mask})^2}}{\sqrt{N_{\text{valid}}}} \right)$$
+
+
 
 
 The spike mask is explicitly threaded from `environment.step()` through `field.step()` to `observer.record()` at each timestep. If $N_{\text{valid}} < 2$ (almost all nodes spiked simultaneously), the proxy returns `NaN` and the step is classified as `SPIKE_DOMINATED` — a transient physical event, not internal chaos.
