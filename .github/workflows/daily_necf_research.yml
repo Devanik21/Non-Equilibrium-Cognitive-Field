@@ -1136,7 +1136,7 @@ jobs:
           to prevent premature attractor lock-in.  With the measured
           $k_{{\\rm esc}} = {k_esc:.4f}$, a curiosity kick amplitude of 0.10
           escapes the field's current basin in approximately
-          $1/k_{{\\rm esc}} = {1/k_esc if k_esc > 0 else 'inf':.1f}$ such interventions.
+          $1/k_{{\\rm esc}} = {1/k_esc if k_esc > 0 else float('inf'):.1f}$ such interventions.
           This sets the minimum intervention budget for the CuriosityEngine's
           REFRAME directive.
 
