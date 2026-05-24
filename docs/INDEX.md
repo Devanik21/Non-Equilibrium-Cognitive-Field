@@ -72,3 +72,4 @@ Seven analysis types rotate by day-of-year modulo 7.
 | [2026-05-21](docs/sessions/2026-05-21_synchronization_onset.md) | NECF-2026-141-T0 | Synchronization Onset and Critical Coupling in the Amplitude... |
 | [2026-05-22](docs/sessions/2026-05-22_boltzmann_temperature_scan.md) | NECF-2026-142-T1 | Boltzmann Contagion Temperature Scan: Optimal κ for Rule-Fie... |
 | [2026-05-23](docs/sessions/2026-05-23_identity_stability_landscape.md) | NECF-2026-143-T2 | Identity Curvature H[L] Stability Landscape: Phase Diagram i... |
+| [2026-05-24](docs/sessions/2026-05-24_lyapunov_spectrum_qr.md) | NECF-2026-144-T3 | Lyapunov Spectrum via Continuous QR Decomposition: Dynamical... |
