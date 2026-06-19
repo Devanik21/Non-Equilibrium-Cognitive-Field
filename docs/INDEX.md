@@ -98,3 +98,4 @@ Seven analysis types rotate by day-of-year modulo 7.
 | [2026-06-16](docs/sessions/2026-06-16_free_energy_topology.md) | NECF-2026-167-T5 | Free Energy Landscape Topology: Attractor Basin Counting and... |
 | [2026-06-17](docs/sessions/2026-06-17_ablation_level_comparison.md) | NECF-2026-168-T6 | Ablation Study: Level-1 (Fixed L) vs Level-2 (Global β) vs L... |
 | [2026-06-18](docs/sessions/2026-06-18_synchronization_onset.md) | NECF-2026-169-T0 | Synchronization Onset and Critical Coupling in the Amplitude... |
+| [2026-06-19](docs/sessions/2026-06-19_boltzmann_temperature_scan.md) | NECF-2026-170-T1 | Boltzmann Contagion Temperature Scan: Optimal κ for Rule-Fie... |
