@@ -1,15 +1,9 @@
 <div align="center">
 
-```
-███╗   ██╗███████╗ ██████╗███████╗
-████╗  ██║██╔════╝██╔════╝██╔════╝
-██╔██╗ ██║█████╗  ██║     █████╗
-██║╚██╗██║██╔══╝  ██║     ██╔══╝
-██║ ╚████║███████╗╚██████╗██║
-╚═╝  ╚═══╝╚══════╝ ╚═════╝╚═╝
-```
 
 **Non-Equilibrium Cognitive Field**
+
+<img width="480" height="240" alt="image" src="https://github.com/user-attachments/assets/fe5eb28e-266f-44f1-8aa7-d416e578ffe6" />
 
 *A self-modifying dynamical system for proto-cognitive adaptation*
 
