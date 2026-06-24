@@ -3,7 +3,7 @@
 
 # Non-Equilibrium Cognitive Field
 
-<img width="1162" height="603" alt="image" src="https://github.com/user-attachments/assets/d7722342-10b7-4853-b579-346288fd48c2" />
+<img width="6001" height="4001" alt="image" src="https://github.com/user-attachments/assets/050d8e42-92a8-4315-a48f-e50dc6c88d7b" />
 
 *A self-modifying dynamical system for proto-cognitive adaptation*
 
