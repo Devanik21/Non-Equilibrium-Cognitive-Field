@@ -104,3 +104,4 @@ Seven analysis types rotate by day-of-year modulo 7.
 | [2026-06-22](docs/sessions/2026-06-22_epistemic_contagion_rate.md) | NECF-2026-173-T4 | Epistemic Contagion Rate Constant: Two-Group Mixing Time as ... |
 | [2026-06-23](docs/sessions/2026-06-23_free_energy_topology.md) | NECF-2026-174-T5 | Free Energy Landscape Topology: Attractor Basin Counting and... |
 | [2026-06-24](docs/sessions/2026-06-24_ablation_level_comparison.md) | NECF-2026-175-T6 | Ablation Study: Level-1 (Fixed L) vs Level-2 (Global β) vs L... |
+| [2026-06-25](docs/sessions/2026-06-25_synchronization_onset.md) | NECF-2026-176-T0 | Synchronization Onset and Critical Coupling in the Amplitude... |
