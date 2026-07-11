@@ -119,3 +119,4 @@ Seven analysis types rotate by day-of-year modulo 7.
 | [2026-07-07](docs/sessions/2026-07-07_free_energy_topology.md) | NECF-2026-188-T5 | Free Energy Landscape Topology: Attractor Basin Counting and... |
 | [2026-07-08](docs/sessions/2026-07-08_ablation_level_comparison.md) | NECF-2026-189-T6 | Ablation Study: Level-1 (Fixed L) vs Level-2 (Global β) vs L... |
 | [2026-07-10](docs/sessions/2026-07-10_boltzmann_temperature_scan.md) | NECF-2026-191-T1 | Boltzmann Contagion Temperature Scan: Optimal κ for Rule-Fie... |
+| [2026-07-11](docs/sessions/2026-07-11_identity_stability_landscape.md) | NECF-2026-192-T2 | Identity Curvature H[L] Stability Landscape: Phase Diagram i... |
