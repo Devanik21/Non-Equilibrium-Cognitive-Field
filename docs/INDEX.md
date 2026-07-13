@@ -121,3 +121,4 @@ Seven analysis types rotate by day-of-year modulo 7.
 | [2026-07-10](docs/sessions/2026-07-10_boltzmann_temperature_scan.md) | NECF-2026-191-T1 | Boltzmann Contagion Temperature Scan: Optimal κ for Rule-Fie... |
 | [2026-07-11](docs/sessions/2026-07-11_identity_stability_landscape.md) | NECF-2026-192-T2 | Identity Curvature H[L] Stability Landscape: Phase Diagram i... |
 | [2026-07-12](docs/sessions/2026-07-12_lyapunov_spectrum_qr.md) | NECF-2026-193-T3 | Lyapunov Spectrum via Continuous QR Decomposition: Dynamical... |
+| [2026-07-13](docs/sessions/2026-07-13_epistemic_contagion_rate.md) | NECF-2026-194-T4 | Epistemic Contagion Rate Constant: Two-Group Mixing Time as ... |
