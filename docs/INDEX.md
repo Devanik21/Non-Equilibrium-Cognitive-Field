@@ -168,3 +168,4 @@ Seven analysis types rotate by day-of-year modulo 7.
 | [2026-08-26](docs/sessions/2026-08-26_ablation_level_comparison.md) | NECF-2026-238-T6 | Ablation Study: Level-1 (Fixed L) vs Level-2 (Global β) vs L... |
 | [2026-08-27](docs/sessions/2026-08-27_synchronization_onset.md) | NECF-2026-239-T0 | Synchronization Onset and Critical Coupling in the Amplitude... |
 | [2026-08-28](docs/sessions/2026-08-28_boltzmann_temperature_scan.md) | NECF-2026-240-T1 | Boltzmann Contagion Temperature Scan: Optimal κ for Rule-Fie... |
+| [2026-08-29](docs/sessions/2026-08-29_identity_stability_landscape.md) | NECF-2026-241-T2 | Identity Curvature H[L] Stability Landscape: Phase Diagram i... |
