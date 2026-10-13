@@ -213,3 +213,4 @@ Seven analysis types rotate by day-of-year modulo 7.
 | [2026-10-10](docs/sessions/2026-10-10_identity_stability_landscape.md) | NECF-2026-283-T2 | Identity Curvature H[L] Stability Landscape: Phase Diagram i... |
 | [2026-10-11](docs/sessions/2026-10-11_lyapunov_spectrum_qr.md) | NECF-2026-284-T3 | Lyapunov Spectrum via Continuous QR Decomposition: Dynamical... |
 | [2026-10-12](docs/sessions/2026-10-12_epistemic_contagion_rate.md) | NECF-2026-285-T4 | Epistemic Contagion Rate Constant: Two-Group Mixing Time as ... |
+| [2026-10-13](docs/sessions/2026-10-13_free_energy_topology.md) | NECF-2026-286-T5 | Free Energy Landscape Topology: Attractor Basin Counting and... |
