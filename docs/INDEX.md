@@ -214,3 +214,4 @@ Seven analysis types rotate by day-of-year modulo 7.
 | [2026-10-11](docs/sessions/2026-10-11_lyapunov_spectrum_qr.md) | NECF-2026-284-T3 | Lyapunov Spectrum via Continuous QR Decomposition: Dynamical... |
 | [2026-10-12](docs/sessions/2026-10-12_epistemic_contagion_rate.md) | NECF-2026-285-T4 | Epistemic Contagion Rate Constant: Two-Group Mixing Time as ... |
 | [2026-10-13](docs/sessions/2026-10-13_free_energy_topology.md) | NECF-2026-286-T5 | Free Energy Landscape Topology: Attractor Basin Counting and... |
+| [2026-10-14](docs/sessions/2026-10-14_ablation_level_comparison.md) | NECF-2026-287-T6 | Ablation Study: Level-1 (Fixed L) vs Level-2 (Global β) vs L... |
